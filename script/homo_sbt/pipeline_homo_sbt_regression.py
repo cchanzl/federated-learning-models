@@ -86,11 +86,12 @@ def main(config="../../config.yaml", namespace=""):
                                                                                label_type="float")
 
     homo_secureboost_0 = HomoSecureBoost(name="homo_secureboost_0",
-                                         num_trees=5,
+                                         num_trees=20,
                                          task_type='regression',
+                                         # None,'cross_entropy','lse','lae','log_cosh','tweedie','fair','huber'
                                          objective_param={"objective": "lse"},
                                          tree_param={
-                                             "max_depth": 4
+                                             "max_depth": 10
                                          },
                                          validation_freqs=2
                                          )

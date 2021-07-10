@@ -31,17 +31,17 @@ DATA_BASE = "/data/projects/fate"
 
 def main(data_base=DATA_BASE):
     breast = False  # Set to true if want to use breast dataset
-    party_A_train = "party_A_x_train.csv"
-    party_B_train = "party_B_x_train.csv"
-    party_C_train = "party_C_x_train.csv"
+    party_A_train = "party_A_train.csv"
+    party_B_train = "party_B_train.csv"
+    party_C_train = "party_C_train.csv"
 
     party_A_train_name = "nasa_A"
     party_B_train_name = "nasa_B"
     party_C_train_name = "nasa_C"
 
-    party_A_test = "party_A_x_test.csv"
-    party_B_test = "party_B_x_test.csv"
-    party_C_test = "party_C_x_test.csv"
+    party_A_test = "party_A_test.csv"
+    party_B_test = "party_B_test.csv"
+    party_C_test = "party_C_test.csv"
 
     party_A_test_name = "nasa_A_test"
     party_B_test_name = "nasa_B_test"
