@@ -45,12 +45,12 @@ def main(config="../../config.yaml", namespace=""):
                        batch_size=batch_size)
     homo_nn_0.add(Dense(units=nodes[0], input_dim=input_dim, activation=activation))
     homo_nn_0.add(Dropout(dropout))
-    homo_nn_0.add(Dense(units=nodes[1], activation=activation))
-    homo_nn_0.add(Dropout(dropout))
-    homo_nn_0.add(Dense(units=nodes[2], activation=activation))
-    homo_nn_0.add(Dropout(dropout))
+    # homo_nn_0.add(Dense(units=nodes[1], activation=activation))
+    # homo_nn_0.add(Dropout(dropout))
+    # homo_nn_0.add(Dense(units=nodes[2], activation=activation))
+    # homo_nn_0.add(Dropout(dropout))
     homo_nn_0.add(Dense(units=nb_classes, activation="softmax"))
     homo_nn_0.compile(optimizer=optimizers.Adam(learning_rate=alpha),
                       metrics=["accuracy"],
                       loss="sparse_categorical_crossentropy")  # sparse CC can be used on integers categories
-    run_homo_nn_pipeline(config, namespace, homo_nn_0, num_host=2)
+    run_homo_nn_pipeline(config, namespace, homo_nn_0)
