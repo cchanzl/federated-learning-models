@@ -29,13 +29,14 @@ from homo_nn._common_component import run_homo_nn_pipeline
 remaining_sensors = ['sens2', 'sens3', 'sens4', 'sens7', 'sens8', 'sens11',
                      'sens12', 'sens13', 'sens15', 'sens17', 'sens20', 'sens21']
 
-alpha = 0.09
+# https://stackoverflow.com/questions/41488279/neural-network-always-predicts-the-same-class
+
+alpha = 0.001  # 0.005
 nb_classes = 16
 epochs = 35
-specific_lags = [1, 2, 3, 4, 5, 10, 20]
-nodes = [128, 256, 512]
+nodes = [128, 256, 512]  # [128, 256, 512]
 dropout = 0.15
-activation = 'relu'
+activation = 'relu'  # relu
 batch_size = 32
 input_dim = len(remaining_sensors)*2  # multiply by two for mean and trend
 

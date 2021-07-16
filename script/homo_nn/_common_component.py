@@ -76,6 +76,7 @@ def run_homo_nn_pipeline(config, namespace, nn_component):
     #                                                validate_data=datatransform_1.output.data))
     pipeline.add_component(nn_component, data=Data(train_data=datatransform_0.output.data))
 
+    # define evaluation component
     evaluation_0 = Evaluation(name="evaluation_0", eval_type="multi")  # 'binary', 'multi', 'regression', 'clustering'
     pipeline.add_component(evaluation_0, data=Data(data=nn_component.output.data))
 
@@ -86,17 +87,29 @@ def run_homo_nn_pipeline(config, namespace, nn_component):
 
     print(pipeline.get_component("homo_nn_0").get_summary())
     print(f"Evaluation summary:\n{json.dumps(pipeline.get_component('evaluation_0').get_summary(), indent=4)}")
+
+    # deploy so that it can be used in predict stage
     pipeline.deploy_component([datatransform_0, nn_component])
 
     # predict
+    # for example on how to add evaluation to predict_pipeline see:
+    # https://github.com/FederatedAI/FATE/blob/master/examples/pipeline/demo/pipeline-mini-demo.py
     predict_pipeline = PipeLine()  # new pipeline object
     predict_pipeline.add_component(reader_1)
-    # predict_pipeline.add_component(datatransform_1, data=Data(data=reader_1.output.data))
     # data is {training data : prediction data}
     predict_pipeline.add_component(pipeline,
                                    data=Data(predict_input={pipeline.datatransform_0.input.data: reader_1.output.data}))
+
+    # define evaluation component
+    evaluation_1 = Evaluation(name="evaluation_1")
+    evaluation_1.get_party_instance(role="guest", party_id=guest).component_param(need_run=True, eval_type="multi")
+    evaluation_1.get_party_instance(role="host", party_id=host[0]).component_param(need_run=True, eval_type="multi")
+    evaluation_1.get_party_instance(role="host", party_id=host[1]).component_param(need_run=True, eval_type="multi")
+    predict_pipeline.add_component(evaluation_1, data=Data(data=pipeline.homo_nn_0.output.data))
+
     # run predict model
     predict_pipeline.predict(job_parameters)
+    # print(f"Evaluation summary:\n{json.dumps(predict_pipeline.get_component('evaluation_1').get_summary(), indent=4)}")
 
 
 def runner(main_func):
