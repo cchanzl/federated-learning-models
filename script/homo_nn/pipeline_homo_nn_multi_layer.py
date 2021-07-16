@@ -24,32 +24,33 @@ additional_path = pathlib.Path(__file__).resolve().parent.parent.resolve().__str
 if additional_path not in sys.path:
     sys.path.append(additional_path)
 
-from homo_nn._common_component import run_homo_nn_pipeline, dataset
+from homo_nn._common_component import run_homo_nn_pipeline
 
 remaining_sensors = ['sens2', 'sens3', 'sens4', 'sens7', 'sens8', 'sens11',
                      'sens12', 'sens13', 'sens15', 'sens17', 'sens20', 'sens21']
 
-epochs = 10
+alpha = 0.09
+nb_classes = 16
+epochs = 35
 specific_lags = [1, 2, 3, 4, 5, 10, 20]
-nodes_per_layer = [32, 64, 128]
-dropout = 0.05
+nodes = [128, 256, 512]
+dropout = 0.15
 activation = 'relu'
-batch_size = 16
-input_dim = len(remaining_sensors)
+batch_size = 32
+input_dim = len(remaining_sensors)*2  # multiply by two for mean and trend
 
 def main(config="../../config.yaml", namespace=""):
     homo_nn_0 = HomoNN(name="homo_nn_0", config_type = 'keras',
                        max_iter=epochs,
                        batch_size=batch_size)
-    # homo_nn_0.add(Dense(units=nodes_per_layer[0], input_dim=12, activation=activation))
-    # homo_nn_0.add(Dropout(dropout))
-    # homo_nn_0.add(Dense(units=nodes_per_layer[1], activation=activation))
-    # homo_nn_0.add(Dropout(dropout))
-    # homo_nn_0.add(Dense(units=nodes_per_layer[2], activation=activation))
-    # homo_nn_0.add(Dropout(dropout))
-    homo_nn_0.add(Dense(units=152, activation=activation))
-    homo_nn_0.compile(optimizer=optimizers.Adam(learning_rate=0.05),
-                      #metrics=["MeanSquaredError"],
-                      #loss="mean_absolute_error")
-                      loss="mean_squared_error")
-    run_homo_nn_pipeline(config, namespace, dataset.nasa, homo_nn_0, 1)
+    homo_nn_0.add(Dense(units=nodes[0], input_dim=input_dim, activation=activation))
+    homo_nn_0.add(Dropout(dropout))
+    homo_nn_0.add(Dense(units=nodes[1], activation=activation))
+    homo_nn_0.add(Dropout(dropout))
+    homo_nn_0.add(Dense(units=nodes[2], activation=activation))
+    homo_nn_0.add(Dropout(dropout))
+    homo_nn_0.add(Dense(units=nb_classes, activation="softmax"))
+    homo_nn_0.compile(optimizer=optimizers.Adam(learning_rate=alpha),
+                      metrics=["accuracy"],
+                      loss="sparse_categorical_crossentropy")  # sparse CC can be used on integers categories
+    run_homo_nn_pipeline(config, namespace, homo_nn_0, num_host=2)

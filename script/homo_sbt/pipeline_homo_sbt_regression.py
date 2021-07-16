@@ -54,6 +54,7 @@ def main(config="../../config.yaml", namespace=""):
     # set job initiator
     pipeline = PipeLine().set_initiator(role='guest', party_id=guest).set_roles(guest=guest, host=host, arbiter=arbiter)
 
+    # 0 for train data, 1 for test data
     dataio_0, dataio_1 = DataIO(name="dataio_0"), DataIO(name='dataio_1')
     reader_0, reader_1 = Reader(name="reader_0"), Reader(name='reader_1')
 

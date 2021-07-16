@@ -2,7 +2,8 @@ parties: # parties default id
   guest:
     - 1234
   host:
-    - 9876
+    - 2222
+    - 3333
   arbiter:
     - 9999
 
