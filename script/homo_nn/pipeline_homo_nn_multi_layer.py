@@ -55,3 +55,5 @@ def main(config="../../config.yaml", namespace=""):
                       metrics=["accuracy"],
                       loss="sparse_categorical_crossentropy")  # sparse CC can be used on integers categories
     run_homo_nn_pipeline(config, namespace, homo_nn_0)
+
+# Selu, LeakyReLU, Tanh, Sigmoid, Relu, Tanh

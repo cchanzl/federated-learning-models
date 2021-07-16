@@ -15,9 +15,9 @@
 #
 
 import argparse
-
+from pipeline.component import HomoDataSplit
 from pipeline.backend.pipeline import PipeLine
-from pipeline.component.dataio import DataIO
+from pipeline.component.data_transform import DataTransform
 from pipeline.component.homo_secureboost import HomoSecureBoost
 from pipeline.component.reader import Reader
 from pipeline.interface.data import Data
@@ -55,20 +55,20 @@ def main(config="../../config.yaml", namespace=""):
     pipeline = PipeLine().set_initiator(role='guest', party_id=guest).set_roles(guest=guest, host=host, arbiter=arbiter)
 
     # 0 for train data, 1 for test data
-    dataio_0, dataio_1 = DataIO(name="dataio_0"), DataIO(name='dataio_1')
+    datatransform_0, datatransform_1 = DataTransform(name="datatransform_0"), DataTransform(name='datatransform_1')
     reader_0, reader_1 = Reader(name="reader_0"), Reader(name='reader_1')
 
     reader_0.get_party_instance(role='guest', party_id=guest).component_param(table=party_A_train_data)
     reader_0.get_party_instance(role='host', party_id=host[0]).component_param(table=party_B_train_data)
     reader_0.get_party_instance(role='host', party_id=host[1]).component_param(table=party_C_train_data)
 
-    dataio_0.get_party_instance(role='guest', party_id=guest).component_param(with_label=True,
+    datatransform_0.get_party_instance(role='guest', party_id=guest).component_param(with_label=True,
                                                                               output_format="dense",
                                                                               label_type="float")
-    dataio_0.get_party_instance(role='host', party_id=host[0]).component_param(with_label=True,
+    datatransform_0.get_party_instance(role='host', party_id=host[0]).component_param(with_label=True,
                                                                                output_format="dense",
                                                                                label_type="float")
-    dataio_0.get_party_instance(role='host', party_id=host[1]).component_param(with_label=True,
+    datatransform_0.get_party_instance(role='host', party_id=host[1]).component_param(with_label=True,
                                                                                output_format="dense",
                                                                                label_type="float")
 
@@ -76,41 +76,77 @@ def main(config="../../config.yaml", namespace=""):
     reader_1.get_party_instance(role='host', party_id=host[0]).component_param(table=party_B_test_data)
     reader_1.get_party_instance(role='host', party_id=host[1]).component_param(table=party_C_test_data)
 
-    dataio_1.get_party_instance(role='guest', party_id=guest).component_param(with_label=True,
+    datatransform_1.get_party_instance(role='guest', party_id=guest).component_param(with_label=True,
                                                                               output_format="dense",
                                                                               label_type="float")
-    dataio_1.get_party_instance(role='host', party_id=host[0]).component_param(with_label=True,
+    datatransform_1.get_party_instance(role='host', party_id=host[0]).component_param(with_label=True,
                                                                                output_format="dense",
                                                                                label_type="float")
-    dataio_1.get_party_instance(role='host', party_id=host[1]).component_param(with_label=True,
+    datatransform_1.get_party_instance(role='host', party_id=host[1]).component_param(with_label=True,
                                                                                output_format="dense",
                                                                                label_type="float")
 
     homo_secureboost_0 = HomoSecureBoost(name="homo_secureboost_0",
-                                         num_trees=20,
+                                         num_trees=30,  # 20 is best
                                          task_type='regression',
                                          # None,'cross_entropy','lse','lae','log_cosh','tweedie','fair','huber'
                                          objective_param={"objective": "lse"},
-                                         tree_param={
-                                             "max_depth": 10
-                                         },
-                                         validation_freqs=2
-                                         )
+                                         tree_param={"max_depth": 10},
+                                         validation_freqs=3)
 
-    evaluation_0 = Evaluation(name='evaluation_0', eval_type='regression')
-
-    pipeline.add_component(reader_0)
-    pipeline.add_component(dataio_0, data=Data(data=reader_0.output.data))
-    pipeline.add_component(reader_1)
-    pipeline.add_component(dataio_1, data=Data(data=reader_1.output.data), model=Model(dataio_0.output.model))
-    pipeline.add_component(homo_secureboost_0, data=Data(train_data=dataio_0.output.data,
-                                                         validate_data=dataio_1.output.data
-                                                         ))
-    pipeline.add_component(evaluation_0, data=Data(homo_secureboost_0.output.data))
-
-    pipeline.compile()
     job_parameters = JobParameters(backend=backend, work_mode=work_mode)
-    pipeline.fit(job_parameters)
+
+    print("Start training")
+    train = True
+    if train:
+        evaluation_0 = Evaluation(name='evaluation_0', eval_type='regression')
+        pipeline.add_component(reader_0)
+        pipeline.add_component(datatransform_0, data=Data(data=reader_0.output.data))
+        pipeline.add_component(reader_1)
+
+        # pipeline.add_component(datatransform_1, data=Data(data=reader_1.output.data), model=Model(datatransform_0.output.model))
+
+        # https://github.com/FederatedAI/FATE/tree/178f04d1a58181359d6550b4673d4b4dc72a778f/python/fate_client/pipeline/component
+        homo_data_split_1 = HomoDataSplit(name='homo_data_split_1')
+        pipeline.add_component(homo_data_split_1, data=Data(data=datatransform_0.output.data))
+
+        pipeline.add_component(homo_secureboost_0, data=Data(train_data=homo_data_split_1.output.data.train_data,
+                                                             validate_data=homo_data_split_1.output.data.validate_data))
+        pipeline.add_component(evaluation_0, data=Data(homo_secureboost_0.output.data))
+        pipeline.compile()
+
+        pipeline.fit(job_parameters)
+
+        # save train pipeline
+        pipeline.dump("pipeline_homo_sbt_saved.pkl")
+
+    print("End training")
+
+    ###########
+    # predict
+    ###########
+
+    print("Reached prediction")
+    pipeline = PipeLine.load_model_from_file('pipeline_homo_sbt_saved.pkl')
+    pipeline.deploy_component([datatransform_0, homo_secureboost_0])  # deploy so that it can be used in predict stage
+
+    predict_pipeline = PipeLine()  # new pipeline object
+    predict_pipeline.add_component(reader_1)
+    # data is {training data : prediction data}
+
+    predict_pipeline.add_component(pipeline,
+                                   data=Data(predict_input={pipeline.datatransform_0.input.data: reader_1.output.data}))
+
+    # define evaluation component
+    evaluation_1 = Evaluation(name="evaluation_1")
+    evaluation_1.get_party_instance(role="guest", party_id=guest).component_param(need_run=True, eval_type="regression")
+    evaluation_1.get_party_instance(role="host", party_id=host[0]).component_param(need_run=True, eval_type="regression")
+    evaluation_1.get_party_instance(role="host", party_id=host[1]).component_param(need_run=True, eval_type="regression")
+    predict_pipeline.add_component(evaluation_1, data=Data(data=pipeline.homo_secureboost_0.output.data))
+
+    # run predict model
+    print("Start prediction process")
+    predict_pipeline.predict(job_parameters)
 
 
 if __name__ == "__main__":

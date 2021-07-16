@@ -91,7 +91,10 @@ def run_homo_nn_pipeline(config, namespace, nn_component):
     # deploy so that it can be used in predict stage
     pipeline.deploy_component([datatransform_0, nn_component])
 
+    ###########
     # predict
+    ###########
+
     # for example on how to add evaluation to predict_pipeline see:
     # https://github.com/FederatedAI/FATE/blob/master/examples/pipeline/demo/pipeline-mini-demo.py
     predict_pipeline = PipeLine()  # new pipeline object
