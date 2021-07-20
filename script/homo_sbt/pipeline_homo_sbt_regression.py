@@ -85,14 +85,15 @@ def main(config="../../config.yaml", namespace=""):
     datatransform_1.get_party_instance(role='host', party_id=host[1]).component_param(with_label=True,
                                                                                output_format="dense",
                                                                                label_type="float")
-
+    # 50/20/10
     homo_secureboost_0 = HomoSecureBoost(name="homo_secureboost_0",
-                                         num_trees=30,  # 20 is best
+                                         learning_rate=0.1,
+                                         num_trees=50,  # 20 is best
                                          task_type='regression',
                                          # None,'cross_entropy','lse','lae','log_cosh','tweedie','fair','huber'
-                                         objective_param={"objective": "lse"},
-                                         tree_param={"max_depth": 10},
-                                         validation_freqs=3)
+                                         objective_param={"objective": "lse"},  # lse is best
+                                         tree_param={"max_depth": 20},
+                                         validation_freqs=10)
 
     job_parameters = JobParameters(backend=backend, work_mode=work_mode)
 
@@ -102,10 +103,6 @@ def main(config="../../config.yaml", namespace=""):
         evaluation_0 = Evaluation(name='evaluation_0', eval_type='regression')
         pipeline.add_component(reader_0)
         pipeline.add_component(datatransform_0, data=Data(data=reader_0.output.data))
-        pipeline.add_component(reader_1)
-
-        # pipeline.add_component(datatransform_1, data=Data(data=reader_1.output.data), model=Model(datatransform_0.output.model))
-
         # https://github.com/FederatedAI/FATE/tree/178f04d1a58181359d6550b4673d4b4dc72a778f/python/fate_client/pipeline/component
         homo_data_split_1 = HomoDataSplit(name='homo_data_split_1')
         pipeline.add_component(homo_data_split_1, data=Data(data=datatransform_0.output.data))
