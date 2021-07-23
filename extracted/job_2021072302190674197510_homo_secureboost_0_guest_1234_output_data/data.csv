@@ -1,0 +1,3 @@
+id,label,predict_result,predict_score,predict_detail,type
+100001,123.0,88.35027484362,88.35027484362,{'label': 88.35027484362},predict
+3900001,150.0,195.85547046666,195.85547046666,{'label': 195.85547046666},predict

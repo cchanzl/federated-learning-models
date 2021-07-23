@@ -1,4 +1,4 @@
-#  Hello World
+#  python /main/script/pipeline-quick-demo.py
 #  Copyright 2019 The FATE Authors. All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,7 @@ from pipeline.runtime.entity import JobParameters
 # data should be uploaded before running modeling task
 guest_train_data = {"name": "breast_hetero_guest", "namespace": "experiment"}
 host_train_data = {"name": "breast_hetero_host", "namespace": "experiment"}
-party_no = 0001
+party_no = 1111
 host_no = 9999
 
 # initialize pipeline

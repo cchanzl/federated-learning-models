@@ -1,4 +1,4 @@
-#  python /main/script/pipeline-upload.py --base /main/data
+#  python /main/script/pipeline-upload.py -config /main/script/homo_sbt/config.yaml
 #  Copyright 2019 The FATE Authors. All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 import os
 import argparse
-
+from pipeline.utils.tools import load_job_config
 from pipeline.backend.config import Backend, WorkMode
 from pipeline.backend.pipeline import PipeLine
 
@@ -29,8 +29,11 @@ DATA_BASE = "/data/projects/fate"
 # DATA_BASE = site.getsitepackages()[0]
 
 
-def main(data_base=DATA_BASE):
-    breast = False  # Set to true if want to use breast dataset
+def main(config="../../config.yaml", data_base='/main/data'):
+    # obtain config
+    if isinstance(config, str):
+        config = load_job_config(config)
+
     party_A_train = "party_A_train.csv"
     party_B_train = "party_B_train.csv"
     party_C_train = "party_C_train.csv"
@@ -47,15 +50,12 @@ def main(data_base=DATA_BASE):
     party_B_test_name = "nasa_B_test"
     party_C_test_name = "nasa_C_test"
 
-    if breast:
-        party_A_train = "breast_homo_guest.csv"
-        party_B_train = "breast_homo_host.csv"
-        party_A_train_name = "breast_homo_guest"
-        party_B_train_name = "breast_homo_host"
-        # parties config
-
-    # does not matter what this number is. only used for upload. not relevant to model training.
-    guest = 1234
+    # update role details
+    parties = config.parties
+    guest = parties.guest[0]
+    host_0 = parties.host[0]
+    host_1 = parties.host[1]
+    arbiter = parties.arbiter[0]
 
     # 0 for eggroll, 1 for spark
     backend = Backend.EGGROLL
@@ -76,8 +76,10 @@ def main(data_base=DATA_BASE):
     party_B_test_dict = {"name": party_B_test_name, "namespace": f"experiment"}
     party_C_test_dict = {"name": party_C_test_name, "namespace": f"experiment"}
 
+    # https://github.com/FederatedAI/FATE/blob/178f04d1a58181359d6550b4673d4b4dc72a778f/examples/pipeline/homo_sbt/pipeline-homo-sbt-binary-multi-host.py
     # https://fate.readthedocs.io/en/latest/_build_temp/python/fate_client/pipeline/README.html
-    pipeline_upload = PipeLine().set_initiator(role="guest", party_id=guest).set_roles(guest=guest)
+    pipeline_upload = PipeLine().set_initiator(role="guest", party_id=guest)
+    pipeline_upload = pipeline_upload.set_roles(guest=guest, host=[host_0, host_1], arbiter=arbiter)
     # add upload data info
     # path to csv file(s) to be uploaded, modify to upload designated data
     # This is an example for standalone version.
@@ -119,11 +121,10 @@ def main(data_base=DATA_BASE):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("PIPELINE DEMO")
-    parser.add_argument("--base", "-b", type=str,
-                        help="data base, path to directory that contains examples/data")
-
+    parser.add_argument("-config", type=str,
+                        help="config file")
     args = parser.parse_args()
-    if args.base is not None:
-        main(args.base)
+    if args.config is not None:
+        main(args.config)
     else:
         main()
