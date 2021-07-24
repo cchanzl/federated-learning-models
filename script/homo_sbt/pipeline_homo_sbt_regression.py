@@ -15,6 +15,7 @@
 #
 
 import argparse
+import json
 import numpy as np
 import random
 from pipeline.component import HomoDataSplit
@@ -53,16 +54,20 @@ def main(config="../../config.yaml", namespace=""):
     party_C_train_data = {"name": "nasa_C", "namespace": f"experiment"}
     party_C_test_data = {"name": "nasa_C_test", "namespace": f"experiment"}
 
-    ITERATIONS = 2
+    job_parameters = JobParameters(backend=backend, work_mode=work_mode)
+    filename = ""
+    hyperparameter_config = []
+
+    ITERATIONS = 10
     train = True
     if train:
         for iteration in range(ITERATIONS):
 
             # Set random grid search parameters
-            num_tree = int(random.sample([20, 30, 40], 1)[0])
-            lrn_rate = random.sample(list(np.arange(1, 30, 1)/100), 1)[0]
-            max_dept = int(random.sample(list(np.arange(10, 50, 5)), 1)[0])
-            val_freq = int(random.sample(list(np.arange(5, 50, 5)), 1)[0])
+            num_tree = int(random.sample(list(np.arange(20, 100, 5), 1)[0])
+            lrn_rate = random.sample(list(np.arange(1, 100, 5)/1000), 1)[0]
+            max_dept = int(random.sample(list(np.arange(5, 50, 5)), 1)[0])
+            val_freq = int(random.sample(list(np.arange(10, 30, 5)), 1)[0])
 
             print("Start training iteration " + str(iteration))
             print("num_tree: " + str(num_tree))
@@ -75,12 +80,12 @@ def main(config="../../config.yaml", namespace=""):
             pipeline.set_roles(guest=guest, host=host, arbiter=arbiter)
 
             # 0 for train data, 1 for test data
-            datatransform_0, datatransform_1 = DataTransform(name="datatransform_0"), DataTransform(name='datatransform_1')
-            reader_0, reader_1 = Reader(name="reader_0"), Reader(name='reader_1')
+            datatransform_0 = DataTransform(name="datatransform_0")
+            reader_0= Reader(name="reader_0")
 
-            reader_0.get_party_instance(role='guest', party_id=guest).component_param(table=party_A_train_data)
+            reader_0.get_party_instance(role='guest', party_id=guest).component_param(table=party_C_train_data)
             reader_0.get_party_instance(role='host', party_id=host[0]).component_param(table=party_B_train_data)
-            reader_0.get_party_instance(role='host', party_id=host[1]).component_param(table=party_C_train_data)
+            reader_0.get_party_instance(role='host', party_id=host[1]).component_param(table=party_A_train_data)
 
             datatransform_0.get_party_instance(role='guest', party_id=guest).component_param(with_label=True,
                                                                                       output_format="dense",
@@ -92,20 +97,6 @@ def main(config="../../config.yaml", namespace=""):
                                                                                        output_format="dense",
                                                                                        label_type="float")
 
-            reader_1.get_party_instance(role='guest', party_id=guest).component_param(table=party_A_test_data)
-            reader_1.get_party_instance(role='host', party_id=host[0]).component_param(table=party_B_test_data)
-            reader_1.get_party_instance(role='host', party_id=host[1]).component_param(table=party_C_test_data)
-
-            datatransform_1.get_party_instance(role='guest', party_id=guest).component_param(with_label=True,
-                                                                                      output_format="dense",
-                                                                                      label_type="float")
-            datatransform_1.get_party_instance(role='host', party_id=host[0]).component_param(with_label=True,
-                                                                                       output_format="dense",
-                                                                                       label_type="float")
-            datatransform_1.get_party_instance(role='host', party_id=host[1]).component_param(with_label=True,
-                                                                                       output_format="dense",
-                                                                                       label_type="float")
-
             homo_secureboost_0 = HomoSecureBoost(name="homo_secureboost_0",
                                                  learning_rate=lrn_rate,
                                                  num_trees=num_tree,  # 50 is best
@@ -114,8 +105,6 @@ def main(config="../../config.yaml", namespace=""):
                                                  objective_param={"objective": "lse"},  # lse is best
                                                  tree_param={"max_depth": max_dept},
                                                  validation_freqs=val_freq)
-
-            job_parameters = JobParameters(backend=backend, work_mode=work_mode)
 
             evaluation_0 = Evaluation(name='evaluation_0', eval_type='regression')
             pipeline.add_component(reader_0)
@@ -129,10 +118,14 @@ def main(config="../../config.yaml", namespace=""):
             pipeline.compile()
 
             pipeline.fit(job_parameters)
+            print(f"Train Evaluation summary:\n{json.dumps(pipeline.get_component('evaluation_0').get_summary(), indent=4)}")
+            # json_string = json.dumps(pipeline.get_component('evaluation_0').get_summary())
+            # json_dict = json.loads(json_string)
+            # print("The RMSE for validate is: " + json_dict["homo_secureboost_0"]["validate"]["root_mean_squared_error"])
 
             # save train pipeline
-            filename = "pipeline_homo_sbt_saved_" + str(iteration) + ".pkl"
-            pipeline.dump(filename)
+            # filename = "pipeline_homo_sbt_saved_" + str(iteration) + "1100-24jul" + ".pkl"
+            # pipeline.dump(filename)
 
             print("End training for iteration: " + str(iteration))
 
@@ -140,14 +133,31 @@ def main(config="../../config.yaml", namespace=""):
             # predict
             ###########
 
-            print("Reached prediction for iteration: " + str(iteration))
-            # pipeline = PipeLine.load_model_from_file('pipeline_homo_sbt_saved_0.29.pkl')
-            pipeline.deploy_component([datatransform_0, homo_secureboost_0])  # deploy so that it can be used in predict stage
+            print("Reached prediction")
+            # pipeline = PipeLine.load_model_from_file(filename)
+            pipeline.deploy_component([pipeline.datatransform_0, pipeline.homo_secureboost_0])  # deploy so that it can be used in predict stage
+
+            reader_1 = Reader(name='reader_1')
+            datatransform_1 = DataTransform(name='datatransform_1')
+
+            reader_1.get_party_instance(role='guest', party_id=guest).component_param(table=party_C_test_data)
+            reader_1.get_party_instance(role='host', party_id=host[0]).component_param(table=party_B_test_data)
+            reader_1.get_party_instance(role='host', party_id=host[1]).component_param(table=party_A_test_data)
+
+            datatransform_1.get_party_instance(role='guest', party_id=guest).component_param(with_label=True,
+                                                                                             output_format="dense",
+                                                                                             label_type="float")
+            datatransform_1.get_party_instance(role='host', party_id=host[0]).component_param(with_label=True,
+                                                                                              output_format="dense",
+                                                                                              label_type="float")
+            datatransform_1.get_party_instance(role='host', party_id=host[1]).component_param(with_label=True,
+                                                                                              output_format="dense",
+                                                                                              label_type="float")
+
 
             predict_pipeline = PipeLine()  # new pipeline object
             predict_pipeline.add_component(reader_1)
             # data is {training data : prediction data}
-
             predict_pipeline.add_component(pipeline,
                                            data=Data(predict_input={pipeline.datatransform_0.input.data: reader_1.output.data}))
 
@@ -161,7 +171,10 @@ def main(config="../../config.yaml", namespace=""):
             # run predict model
             print("Start prediction process")
             predict_pipeline.predict(job_parameters)
-
+            print(f"Predict Evaluation summary:\n{json.dumps(predict_pipeline.get_component('evaluation_1').get_summary(), indent=4)}")
+            # json_string = json.dumps(pipeline.get_component('evaluation_1').get_summary())
+            # json_dict = json.loads(json_string)
+            # print("The RMSE for validate is: " + json_dict["homo_secureboost_0"]["validate"]["root_mean_squared_error"])
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("PIPELINE DEMO")
