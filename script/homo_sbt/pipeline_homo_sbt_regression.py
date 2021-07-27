@@ -64,10 +64,10 @@ def main(config="../../config.yaml", namespace=""):
         for iteration in range(ITERATIONS):
 
             # Set random grid search parameters
-            num_tree = int(random.sample(list(np.arange(20, 100, 5), 1)[0])
-            lrn_rate = random.sample(list(np.arange(1, 100, 5)/1000), 1)[0]
-            max_dept = int(random.sample(list(np.arange(5, 50, 5)), 1)[0])
-            val_freq = int(random.sample(list(np.arange(10, 30, 5)), 1)[0])
+            num_tree = int(random.sample(list(np.arange(30, 40, 5)), 1)[0])
+            lrn_rate = random.sample(list(np.arange(1, 20, 5)/100), 1)[0]
+            max_dept = int(random.sample(list(np.arange(5, 20, 1)), 1)[0])
+            val_freq = int(random.sample(list(np.arange(10, 30, 1)), 1)[0])
 
             print("Start training iteration " + str(iteration))
             print("num_tree: " + str(num_tree))
@@ -110,7 +110,8 @@ def main(config="../../config.yaml", namespace=""):
             pipeline.add_component(reader_0)
             pipeline.add_component(datatransform_0, data=Data(data=reader_0.output.data))
             # https://github.com/FederatedAI/FATE/tree/178f04d1a58181359d6550b4673d4b4dc72a778f/python/fate_client/pipeline/component
-            homo_data_split_1 = HomoDataSplit(name='homo_data_split_1')
+            # https://fate.readthedocs.io/en/latest/_build_temp/python/federatedml/README_zh.html?highlight=DataSplitParam#federatedml.param.DataSplitParam
+            homo_data_split_1 = HomoDataSplit(name='homo_data_split_1', train_size=0.6, validate_size=0.4)
             pipeline.add_component(homo_data_split_1, data=Data(data=datatransform_0.output.data))
             pipeline.add_component(homo_secureboost_0, data=Data(train_data=homo_data_split_1.output.data.train_data,
                                                                  validate_data=homo_data_split_1.output.data.validate_data))
