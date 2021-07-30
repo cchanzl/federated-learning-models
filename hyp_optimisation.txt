@@ -2978,3 +2978,598 @@ Predict Evaluation summary:
         }
     }
 }
+2021-07-27 15:50:29.351326: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory
+2021-07-27 15:50:29.351397: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+Start training iteration 0
+num_tree: 35
+lrn_rate: 0.01
+max_dept: 5
+val_freq: 14
+2021-07-27 15:50:32.919 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072715503233588518
+                   Job is still waiting, time elapse: 0:00:01
+2021-07-27 15:50:34Running component reader_0, time elapse: 0:00:03
+2021-07-27 15:50:37Running component datatransform_0, time elapse: 0:00:07
+2021-07-27 15:50:40Running component homo_data_split_1, time elapse: 0:00:12
+2021-07-27 15:50:45Running component homo_secureboost_0, time elapse: 0:10:30
+2021-07-27 16:01:04Running component evaluation_0, time elapse: 0:10:38
+2021-07-27 16:01:13.750 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072715503233588518
+2021-07-27 16:01:13.751 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:10:40
+Train Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "train": {
+            "explained_variance": 0.4619307180604406,
+            "mean_absolute_error": 30.121360549773772,
+            "mean_squared_error": 1194.7808363592703,
+            "median_absolute_error": 31.974677510005563,
+            "r2_score": 0.4618884259513001,
+            "root_mean_squared_error": 34.56560192386747
+        },
+        "validate": {
+            "explained_variance": 0.4406402211975662,
+            "mean_absolute_error": 32.422208868792204,
+            "mean_squared_error": 1340.3401447775811,
+            "median_absolute_error": 34.88841856001906,
+            "r2_score": 0.4405359211495051,
+            "root_mean_squared_error": 36.610656164258806
+        }
+    }
+}
+End training for iteration: 0
+Reached prediction
+Start prediction process
+2021-07-27 16:01:17.652 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072716011640101521
+                   Job is still waiting, time elapse: 0:00:02
+2021-07-27 16:01:20Running component reader_1, time elapse: 0:00:05
+2021-07-27 16:01:24Running component datatransform_0, time elapse: 0:00:10
+2021-07-27 16:01:28Running component homo_secureboost_0, time elapse: 0:00:19
+2021-07-27 16:01:37Running component evaluation_1, time elapse: 0:00:26
+2021-07-27 16:01:45.544 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072716011640101521
+2021-07-27 16:01:45.544 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:00:27
+Predict Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "predict": {
+            "explained_variance": 0.3457414425408898,
+            "mean_absolute_error": 36.08736380705724,
+            "mean_squared_error": 1617.0749318583496,
+            "median_absolute_error": 41.9879505160705,
+            "r2_score": -0.16317011095406198,
+            "root_mean_squared_error": 40.21287022656241
+        }
+    }
+}
+Start training iteration 1
+num_tree: 30
+lrn_rate: 0.11
+max_dept: 8
+val_freq: 14
+2021-07-27 16:01:47.501 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072716014568605122
+                   Job is still waiting, time elapse: 0:00:03
+2021-07-27 16:01:51Running component reader_0, time elapse: 0:00:09
+2021-07-27 16:01:57Running component datatransform_0, time elapse: 0:00:13
+2021-07-27 16:02:01Running component homo_data_split_1, time elapse: 0:00:19
+2021-07-27 16:02:07Running component homo_secureboost_0, time elapse: 0:13:43
+2021-07-27 16:15:31Running component evaluation_0, time elapse: 0:13:50
+2021-07-27 16:15:39.776 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072716014568605122
+2021-07-27 16:15:39.777 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:13:52
+Train Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "train": {
+            "explained_variance": 0.9980581533357259,
+            "mean_absolute_error": 1.8007938803370938,
+            "mean_squared_error": 4.540007271890386,
+            "median_absolute_error": 1.6875464894285983,
+            "r2_score": 0.9980560088037579,
+            "root_mean_squared_error": 2.130729281699199
+        },
+        "validate": {
+            "explained_variance": 0.8750063611319551,
+            "mean_absolute_error": 12.528284315833059,
+            "mean_squared_error": 281.0757691484043,
+            "median_absolute_error": 8.600257913314014,
+            "r2_score": 0.873577013594272,
+            "root_mean_squared_error": 16.765314466135262
+        }
+    }
+}
+End training for iteration: 1
+Reached prediction
+Start prediction process
+2021-07-27 16:15:43.124 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072716154206062725
+                   Job is still waiting, time elapse: 0:00:02
+2021-07-27 16:15:46Running component reader_1, time elapse: 0:00:05
+2021-07-27 16:15:49Running component datatransform_0, time elapse: 0:00:08
+2021-07-27 16:15:52Running component homo_secureboost_0, time elapse: 0:00:22
+2021-07-27 16:16:06Running component evaluation_1, time elapse: 0:00:29
+2021-07-27 16:16:13.659 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072716154206062725
+2021-07-27 16:16:13.660 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:00:30
+Predict Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "predict": {
+            "explained_variance": 0.6152398940897233,
+            "mean_absolute_error": 25.214286148455272,
+            "mean_squared_error": 996.2854333889479,
+            "median_absolute_error": 22.8465029741714,
+            "r2_score": 0.283366889643646,
+            "root_mean_squared_error": 31.563989503688344
+        }
+    }
+}
+Start training iteration 2
+num_tree: 30
+lrn_rate: 0.01
+max_dept: 19
+val_freq: 23
+2021-07-27 16:16:14.535 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072716161368783126
+                   Job is still waiting, time elapse: 0:00:04
+2021-07-27 16:16:19Running component reader_0, time elapse: 0:00:07
+2021-07-27 16:16:22Running component datatransform_0, time elapse: 0:00:10
+2021-07-27 16:16:25Running component homo_data_split_1, time elapse: 0:00:16
+2021-07-27 16:16:31Running component homo_secureboost_0, time elapse: 0:24:53
+2021-07-27 16:41:08Running component evaluation_0, time elapse: 0:25:00
+2021-07-27 16:41:16.496 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072716161368783126
+2021-07-27 16:41:16.496 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:25:01
+Train Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "train": {
+            "explained_variance": 0.44826248756125686,
+            "mean_absolute_error": 31.131769965604995,
+            "mean_squared_error": 1262.0874304272434,
+            "median_absolute_error": 32.523157156238426,
+            "r2_score": 0.4482618638410827,
+            "root_mean_squared_error": 35.5258698757292
+        },
+        "validate": {
+            "explained_variance": 0.3742756016404488,
+            "mean_absolute_error": 33.65547456135479,
+            "mean_squared_error": 1449.528525722563,
+            "median_absolute_error": 36.752788501198424,
+            "r2_score": 0.3643077828308461,
+            "root_mean_squared_error": 38.07267426544349
+        }
+    }
+}
+End training for iteration: 2
+Reached prediction
+Start prediction process
+2021-07-27 16:41:20.792 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072716411908618429
+                   Job is still waiting, time elapse: 0:00:02
+2021-07-27 16:41:23Running component reader_1, time elapse: 0:00:05
+2021-07-27 16:41:26Running component datatransform_0, time elapse: 0:00:08
+2021-07-27 16:41:30Running component homo_secureboost_0, time elapse: 0:00:29
+2021-07-27 16:41:51Running component evaluation_1, time elapse: 0:00:36
+2021-07-27 16:41:58.765 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072716411908618429
+2021-07-27 16:41:58.766 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:00:37
+Predict Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "predict": {
+            "explained_variance": 0.2860053125771942,
+            "mean_absolute_error": 37.98540424713206,
+            "mean_squared_error": 1787.6466260123668,
+            "median_absolute_error": 44.76343782284857,
+            "r2_score": -0.28586318627540397,
+            "root_mean_squared_error": 42.280570313234506
+        }
+    }
+}
+Start training iteration 3
+num_tree: 35
+lrn_rate: 0.11
+max_dept: 16
+val_freq: 24
+2021-07-27 16:42:00.469 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072716415889123730
+                   Job is still waiting, time elapse: 0:00:03
+2021-07-27 16:42:04Running component reader_0, time elapse: 0:00:06
+2021-07-27 16:42:07Running component datatransform_0, time elapse: 0:00:09
+2021-07-27 16:42:11Running component homo_data_split_1, time elapse: 0:00:15
+2021-07-27 16:42:16Running component homo_secureboost_0, time elapse: 0:28:59
+2021-07-27 17:11:00Running component evaluation_0, time elapse: 0:29:06
+2021-07-27 17:11:08.340 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072716415889123730
+2021-07-27 17:11:08.341 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:29:07
+Train Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "train": {
+            "explained_variance": 0.9996616305359601,
+            "mean_absolute_error": 0.771844833791047,
+            "mean_squared_error": 0.7797656444623804,
+            "median_absolute_error": 0.8007270649655425,
+            "r2_score": 0.9996616113201189,
+            "root_mean_squared_error": 0.8830433989688051
+        },
+        "validate": {
+            "explained_variance": 0.8416206072978117,
+            "mean_absolute_error": 12.902582612247919,
+            "mean_squared_error": 367.14861118087794,
+            "median_absolute_error": 7.957797776731002,
+            "r2_score": 0.8375441243092028,
+            "root_mean_squared_error": 19.161122388338267
+        }
+    }
+}
+End training for iteration: 3
+Reached prediction
+Start prediction process
+2021-07-27 17:11:12.039 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072717111076060833
+                   Job is still waiting, time elapse: 0:00:02
+2021-07-27 17:11:15Running component reader_1, time elapse: 0:00:05
+2021-07-27 17:11:18Running component datatransform_0, time elapse: 0:00:08
+2021-07-27 17:11:21Running component homo_secureboost_0, time elapse: 0:00:33
+2021-07-27 17:11:45Running component evaluation_1, time elapse: 0:00:39
+2021-07-27 17:11:53.523 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072717111076060833
+2021-07-27 17:11:53.524 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:00:41
+Predict Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "predict": {
+            "explained_variance": 0.565234394401067,
+            "mean_absolute_error": 25.480833848864798,
+            "mean_squared_error": 1036.9755736336463,
+            "median_absolute_error": 21.94086819657454,
+            "r2_score": 0.2540982676331799,
+            "root_mean_squared_error": 32.20210511183463
+        }
+    }
+}
+Start training iteration 4
+num_tree: 35
+lrn_rate: 0.16
+max_dept: 12
+val_freq: 29
+2021-07-27 17:11:55.458 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072717115360061534
+                   Job is still waiting, time elapse: 0:00:03
+2021-07-27 17:11:59Running component reader_0, time elapse: 0:00:08
+2021-07-27 17:12:04Running component datatransform_0, time elapse: 0:00:12
+2021-07-27 17:12:08Running component homo_data_split_1, time elapse: 0:00:18
+2021-07-27 17:12:14Running component homo_secureboost_0, time elapse: 0:25:01
+2021-07-27 17:36:58Running component evaluation_0, time elapse: 0:25:08
+2021-07-27 17:37:05.713 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072717115360061534
+2021-07-27 17:37:05.713 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:25:10
+Train Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "train": {
+            "explained_variance": 0.9999930775866147,
+            "mean_absolute_error": 0.10645925887600789,
+            "mean_squared_error": 0.015983388332850065,
+            "median_absolute_error": 0.10417850174286514,
+            "r2_score": 0.9999930774198705,
+            "root_mean_squared_error": 0.1264254259745644
+        },
+        "validate": {
+            "explained_variance": 0.8262615049434752,
+            "mean_absolute_error": 14.20647298672582,
+            "mean_squared_error": 402.58189831640505,
+            "median_absolute_error": 9.518090870192001,
+            "r2_score": 0.8199799624501857,
+            "root_mean_squared_error": 20.0644436333631
+        }
+    }
+}
+End training for iteration: 4
+Reached prediction
+Start prediction process
+2021-07-27 17:37:09.052 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072717370824847537
+                   Job is still waiting, time elapse: 0:00:03
+2021-07-27 17:37:12Running component reader_1, time elapse: 0:00:05
+2021-07-27 17:37:15Running component datatransform_0, time elapse: 0:00:09
+2021-07-27 17:37:18Running component homo_secureboost_0, time elapse: 0:00:32
+2021-07-27 17:37:42Running component evaluation_1, time elapse: 0:00:39
+2021-07-27 17:37:49.920 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072717370824847537
+2021-07-27 17:37:49.920 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:00:40
+Predict Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "predict": {
+            "explained_variance": 0.5465366030009058,
+            "mean_absolute_error": 27.730013648662517,
+            "mean_squared_error": 1198.4748528967164,
+            "median_absolute_error": 25.744272049584005,
+            "r2_score": 0.1379310258569768,
+            "root_mean_squared_error": 34.61899555008372
+        }
+    }
+}
+Start training iteration 5
+num_tree: 35
+lrn_rate: 0.11
+max_dept: 18
+val_freq: 29
+2021-07-27 17:37:51.779 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072717375004411538
+                   Job is still waiting, time elapse: 0:00:03
+2021-07-27 17:37:55Running component reader_0, time elapse: 0:00:05
+2021-07-27 17:37:58Running component datatransform_0, time elapse: 0:00:09
+2021-07-27 17:38:01Running component homo_data_split_1, time elapse: 0:00:14
+2021-07-27 17:38:07Running component homo_secureboost_0, time elapse: 0:32:52
+2021-07-27 18:10:45Running component evaluation_0, time elapse: 0:33:00
+2021-07-27 18:10:53.528 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072717375004411538
+2021-07-27 18:10:53.529 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:33:01
+Train Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "train": {
+            "explained_variance": 0.9996598551773556,
+            "mean_absolute_error": 0.7557188505855307,
+            "mean_squared_error": 0.774154102134697,
+            "median_absolute_error": 0.7714169396268744,
+            "r2_score": 0.9996598457127863,
+            "root_mean_squared_error": 0.8798602742110233
+        },
+        "validate": {
+            "explained_variance": 0.8579366486828335,
+            "mean_absolute_error": 12.61700556155948,
+            "mean_squared_error": 339.00675400004354,
+            "median_absolute_error": 8.082670120647009,
+            "r2_score": 0.8527884401421959,
+            "root_mean_squared_error": 18.412136052072924
+        }
+    }
+}
+End training for iteration: 5
+Reached prediction
+Start prediction process
+2021-07-27 18:10:57.664 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072718105647046141
+                   Job is still waiting, time elapse: 0:00:02
+2021-07-27 18:11:00Running component reader_1, time elapse: 0:00:05
+2021-07-27 18:11:04Running component datatransform_0, time elapse: 0:00:09
+2021-07-27 18:11:07Running component homo_secureboost_0, time elapse: 0:00:35
+2021-07-27 18:11:34Running component evaluation_1, time elapse: 0:00:43
+2021-07-27 18:11:42.001 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072718105647046141
+2021-07-27 18:11:42.004 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:00:44
+Predict Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "predict": {
+            "explained_variance": 0.5620363360808156,
+            "mean_absolute_error": 25.135440269805947,
+            "mean_squared_error": 1036.1681018407407,
+            "median_absolute_error": 20.673840024248374,
+            "r2_score": 0.2546790861447049,
+            "root_mean_squared_error": 32.189565107977785
+        }
+    }
+}
+Start training iteration 6
+num_tree: 30
+lrn_rate: 0.06
+max_dept: 17
+val_freq: 14
+2021-07-27 18:11:44.056 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072718114209034342
+                   Job is still waiting, time elapse: 0:00:03
+2021-07-27 18:11:47Running component reader_0, time elapse: 0:00:06
+2021-07-27 18:11:50Running component datatransform_0, time elapse: 0:00:09
+2021-07-27 18:11:54Running component homo_data_split_1, time elapse: 0:00:14
+2021-07-27 18:11:59Running component homo_secureboost_0, time elapse: 0:25:04
+2021-07-27 18:36:49Running component evaluation_0, time elapse: 0:25:11
+2021-07-27 18:36:57.171 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072718114209034342
+2021-07-27 18:36:57.172 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:25:13
+Train Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "train": {
+            "explained_variance": 0.9740419370644673,
+            "mean_absolute_error": 6.830810222754898,
+            "mean_squared_error": 60.767659485415656,
+            "median_absolute_error": 7.285181598566908,
+            "r2_score": 0.9740410311255175,
+            "root_mean_squared_error": 7.795361408261688
+        },
+        "validate": {
+            "explained_variance": 0.8463325212560846,
+            "mean_absolute_error": 14.463503866633733,
+            "mean_squared_error": 340.0430560827517,
+            "median_absolute_error": 11.65375720540801,
+            "r2_score": 0.843267053093617,
+            "root_mean_squared_error": 18.440256399593572
+        }
+    }
+}
+End training for iteration: 6
+Reached prediction
+Start prediction process
+2021-07-27 18:37:00.850 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072718365961058545
+                   Job is still waiting, time elapse: 0:00:02
+2021-07-27 18:37:03Running component reader_1, time elapse: 0:00:05
+2021-07-27 18:37:06Running component datatransform_0, time elapse: 0:00:08
+2021-07-27 18:37:10Running component homo_secureboost_0, time elapse: 0:00:29
+2021-07-27 18:37:31Running component evaluation_1, time elapse: 0:00:36
+2021-07-27 18:37:38.911 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072718365961058545
+2021-07-27 18:37:38.911 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:00:38
+Predict Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "predict": {
+            "explained_variance": 0.5677527917927887,
+            "mean_absolute_error": 27.325342060267293,
+            "mean_squared_error": 1156.415559830069,
+            "median_absolute_error": 23.20935020318892,
+            "r2_score": 0.1681844863609746,
+            "root_mean_squared_error": 34.00611062485783
+        }
+    }
+}
+Start training iteration 7
+num_tree: 30
+lrn_rate: 0.01
+max_dept: 8
+val_freq: 15
+2021-07-27 18:37:40.376 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072718373894283046
+                   Job is still waiting, time elapse: 0:00:04
+2021-07-27 18:37:45Running component reader_0, time elapse: 0:00:06
+2021-07-27 18:37:48Running component datatransform_0, time elapse: 0:00:10
+2021-07-27 18:37:51Running component homo_data_split_1, time elapse: 0:00:15
+2021-07-27 18:37:56Running component homo_secureboost_0, time elapse: 0:11:46
+2021-07-27 18:49:27Running component evaluation_0, time elapse: 0:11:53
+2021-07-27 18:49:36.425 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072718373894283046
+2021-07-27 18:49:36.425 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:11:56
+Train Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "train": {
+            "explained_variance": 0.4396919560212925,
+            "mean_absolute_error": 31.51329980531282,
+            "mean_squared_error": 1295.0885580001807,
+            "median_absolute_error": 32.789347255392954,
+            "r2_score": 0.43968543544244165,
+            "root_mean_squared_error": 35.98733885688383
+        },
+        "validate": {
+            "explained_variance": 0.39109173723355495,
+            "mean_absolute_error": 32.646265260438895,
+            "mean_squared_error": 1375.616418094727,
+            "median_absolute_error": 34.290511279197496,
+            "r2_score": 0.39082543477984477,
+            "root_mean_squared_error": 37.089303284029576
+        }
+    }
+}
+End training for iteration: 7
+Reached prediction
+Start prediction process
+2021-07-27 18:49:39.701 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072718493886749449
+                   Job is still waiting, time elapse: 0:00:04
+2021-07-27 18:49:44Running component reader_1, time elapse: 0:00:07
+2021-07-27 18:49:47Running component datatransform_0, time elapse: 0:00:12
+2021-07-27 18:49:52Running component homo_secureboost_0, time elapse: 0:00:26
+2021-07-27 18:50:06Running component evaluation_1, time elapse: 0:00:32
+2021-07-27 18:50:14.368 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072718493886749449
+2021-07-27 18:50:14.369 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:00:34
+Predict Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "predict": {
+            "explained_variance": 0.33037406303853845,
+            "mean_absolute_error": 35.900143095609074,
+            "mean_squared_error": 1584.1245736993433,
+            "median_absolute_error": 42.869538363860045,
+            "r2_score": -0.13946875302642292,
+            "root_mean_squared_error": 39.801062469478666
+        }
+    }
+}
+Start training iteration 8
+num_tree: 30
+lrn_rate: 0.11
+max_dept: 15
+val_freq: 18
+2021-07-27 18:50:15.847 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072718501446079050
+                   Job is still waiting, time elapse: 0:00:03
+2021-07-27 18:50:20Running component reader_0, time elapse: 0:00:06
+2021-07-27 18:50:22Running component datatransform_0, time elapse: 0:00:09
+2021-07-27 18:50:26Running component homo_data_split_1, time elapse: 0:00:14
+2021-07-27 18:50:31Running component homo_secureboost_0, time elapse: 0:25:13
+2021-07-27 19:15:29Running component evaluation_0, time elapse: 0:25:20
+2021-07-27 19:15:37.866 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072718501446079050
+2021-07-27 19:15:37.866 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:25:22
+Train Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "train": {
+            "explained_variance": 0.9989471783625007,
+            "mean_absolute_error": 1.3641288158283673,
+            "mean_squared_error": 2.455027549910151,
+            "median_absolute_error": 1.4202259375036093,
+            "r2_score": 0.9989471132184702,
+            "root_mean_squared_error": 1.566852753104181
+        },
+        "validate": {
+            "explained_variance": 0.8215217047625138,
+            "mean_absolute_error": 14.419135246100726,
+            "mean_squared_error": 416.48923558549984,
+            "median_absolute_error": 9.613352755857498,
+            "r2_score": 0.8120857149177585,
+            "root_mean_squared_error": 20.40806790427501
+        }
+    }
+}
+End training for iteration: 8
+Reached prediction
+Start prediction process
+2021-07-27 19:15:41.613 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072719154016402953
+                   Job is still waiting, time elapse: 0:00:02
+2021-07-27 19:15:44Running component reader_1, time elapse: 0:00:05
+2021-07-27 19:15:47Running component datatransform_0, time elapse: 0:00:08
+2021-07-27 19:15:51Running component homo_secureboost_0, time elapse: 0:00:30
+2021-07-27 19:16:12Running component evaluation_1, time elapse: 0:00:37
+2021-07-27 19:16:19.914 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072719154016402953
+2021-07-27 19:16:19.914 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:00:38
+Predict Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "predict": {
+            "explained_variance": 0.5285328493552854,
+            "mean_absolute_error": 29.673005120931798,
+            "mean_squared_error": 1365.1993853469,
+            "median_absolute_error": 26.64021868712689,
+            "r2_score": 0.0180052332494689,
+            "root_mean_squared_error": 36.94860464681853
+        }
+    }
+}
+Start training iteration 9
+num_tree: 30
+lrn_rate: 0.11
+max_dept: 17
+val_freq: 22
+2021-07-27 19:16:21.307 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072719161996216554
+                   Job is still waiting, time elapse: 0:00:03
+2021-07-27 19:16:26Running component reader_0, time elapse: 0:00:06
+2021-07-27 19:16:28Running component datatransform_0, time elapse: 0:00:09
+2021-07-27 19:16:32Running component homo_data_split_1, time elapse: 0:00:15
+2021-07-27 19:16:37Running component homo_secureboost_0, time elapse: 0:25:56
+2021-07-27 19:42:18Running component evaluation_0, time elapse: 0:26:03
+2021-07-27 19:42:25.928 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072719161996216554
+2021-07-27 19:42:25.929 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:26:04
+Train Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "train": {
+            "explained_variance": 0.9989334617433033,
+            "mean_absolute_error": 1.3440695890066732,
+            "mean_squared_error": 2.3917376865745292,
+            "median_absolute_error": 1.3778112484770304,
+            "r2_score": 0.9989333830995669,
+            "root_mean_squared_error": 1.5465243892595193
+        },
+        "validate": {
+            "explained_variance": 0.8489915125552916,
+            "mean_absolute_error": 13.84756490962716,
+            "mean_squared_error": 363.0164326800073,
+            "median_absolute_error": 9.252144185050504,
+            "r2_score": 0.8462027036764417,
+            "root_mean_squared_error": 19.05299012438749
+        }
+    }
+}
+End training for iteration: 9
+Reached prediction
+Start prediction process
+2021-07-27 19:42:29.468 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:121 - Job id is 2021072719422848739257
+                   Job is still waiting, time elapse: 0:00:03
+2021-07-27 19:42:33Running component reader_1, time elapse: 0:00:05
+2021-07-27 19:42:35Running component datatransform_0, time elapse: 0:00:09
+2021-07-27 19:42:39Running component homo_secureboost_0, time elapse: 0:00:30
+2021-07-27 19:43:00Running component evaluation_1, time elapse: 0:00:37
+2021-07-27 19:43:07.684 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:129 - Job is success!!! Job id is 2021072719422848739257
+2021-07-27 19:43:07.685 | INFO     | pipeline.utils.invoker.job_submitter:monitor_job_status:130 - Total time: 0:00:38
+Predict Evaluation summary:
+{
+    "homo_secureboost_0": {
+        "predict": {
+            "explained_variance": 0.5720707218022294,
+            "mean_absolute_error": 27.322746018035975,
+            "mean_squared_error": 1157.3184468973188,
+            "median_absolute_error": 23.689526465058037,
+            "r2_score": 0.16753503516393886,
+            "root_mean_squared_error": 34.01938339972256
+        }
+    }
+}
+
+
+
