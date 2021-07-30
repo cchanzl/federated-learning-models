@@ -3,7 +3,7 @@ Simple runner to start FedAvgServer server for the MNIST dataset.
 """
 import argparse
 import sys
-from turbofan_fed_model import MNISTModelTrainer, MNISTSubSet
+from turbofan_fed_model import TurbofanModelTrainer, TurbofanSubSet
 from dc_federated.algorithms.fed_avg.fed_avg_server import FedAvgServer
 
 
@@ -60,10 +60,9 @@ def run():
     """
     args = get_args()
 
-    global_model_trainer = MNISTModelTrainer(
-        train_loader=MNISTSubSet.default_dataset(
-            is_train=True).get_data_loader(),
-        test_loader=MNISTSubSet.default_dataset(is_train=False).get_data_loader()
+    global_model_trainer = TurbofanModelTrainer(
+        train_loader=TurbofanSubSet.default_dataset(is_train=True).get_data_loader(),
+        test_loader=TurbofanSubSet.default_dataset(is_train=False).get_data_loader()
     )
 
     fed_avg_server = FedAvgServer(global_model_trainer=global_model_trainer,

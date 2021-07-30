@@ -5,8 +5,7 @@ Simple runner to start FedAvgWorker for the MNIST dataset.
 import argparse
 
 from dc_federated.algorithms.fed_avg.fed_avg_worker import FedAvgWorker
-from dc_federated.examples.mnist.mnist_fed_model import MNISTModelTrainer, MNISTSubSet
-
+from turbofan_fed_model import TurbofanModelTrainer, TurbofanSubSet
 
 def get_args():
     """
@@ -70,23 +69,19 @@ def run():
 
     args = get_args()
 
-    data_transform = MNISTSubSet.default_input_transform()
-    mnist_ds_train = MNISTSubSet.default_mnist_ds(
-        is_train=True, input_transform=data_transform)
-    mnist_ds_test = MNISTSubSet.default_mnist_ds(
-        is_train=False, input_transform=data_transform)
+    data_transform = TurbofanSubSet.default_input_transform()
+    mnist_ds_train = TurbofanSubSet.default_mnist_ds(is_train=True,
+                                                     input_transform=data_transform)
+    mnist_ds_test = TurbofanSubSet.default_mnist_ds(is_train=False,
+                                                    input_transform=data_transform)
 
-    local_model_trainer = MNISTModelTrainer(
-        train_loader=MNISTSubSet(
-            mnist_ds_train,
-            digits=digit_classes[args.digit_class],
-            input_transform=data_transform
-        ).get_data_loader(),
-        test_loader=MNISTSubSet(
-            mnist_ds_test,
-            digits=digit_classes[args.digit_class],
-            input_transform=data_transform
-        ).get_data_loader(),
+    local_model_trainer = TurbofanModelTrainer(
+        train_loader=TurbofanSubSet(mnist_ds_train,
+                                    digits=digit_classes[args.digit_class],
+                                    input_transform=data_transform).get_data_loader(),
+        test_loader=TurbofanSubSet(mnist_ds_test,
+                                   digits=digit_classes[args.digit_class],
+                                   input_transform=data_transform).get_data_loader(),
         round_type=args.round_type,
         rounds_per_iter=args.rounds_per_iter
     )

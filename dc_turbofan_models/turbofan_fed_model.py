@@ -15,12 +15,12 @@ from torch.optim.lr_scheduler import StepLR
 from dc_federated.algorithms.fed_avg.fed_avg_model_trainer import FedAvgModelTrainer
 
 
-class MNISTNet(nn.Module):
+class TurbofanNet(nn.Module):
     """
-    CNN for the MNIST dataset.
+    CNN for the Turbofan dataset.
     """
     def __init__(self):
-        super(MNISTNet, self).__init__()
+        super(TurbofanNet, self).__init__()
         self.conv1 = nn.Conv2d(1, 32, 3, 1)
         self.conv2 = nn.Conv2d(32, 64, 3, 1)
         self.dropout1 = nn.Dropout2d(0.25)
@@ -44,9 +44,9 @@ class MNISTNet(nn.Module):
         return output
 
 
-class MNISTNetArgs(object):
+class TurbofanNetArgs(object):
     """
-    Class to abstract the arguments for a MNISTModelTrainer .
+    Class to abstract the arguments for a TurbofanModelTrainer .
     """
     def __init__(self):
         self.batch_size = 64
@@ -71,10 +71,10 @@ class MNISTNetArgs(object):
         print(f"save_model: {self.save_model}")
 
 
-class MNISTSubSet(torch.utils.data.Dataset):
+class TurbofanSubSet(torch.utils.data.Dataset):
     """
-    Represents a MNIST dataset subset. In particular, torchvision provides a
-    MNIST Dataset. This class wraps around that to deliver only a subset of
+    Represents a Turbofan dataset subset. In particular, torchvision provides a
+    Turbofan Dataset. This class wraps around that to deliver only a subset of
     digits in the train and test sets.
 
     Parameters
@@ -98,7 +98,7 @@ class MNISTSubSet(torch.utils.data.Dataset):
     def __init__(self, mnist_ds, digits, args=None, input_transform=None, target_transform=None):
 
         self.digits = digits
-        self.args = MNISTNetArgs() if not args else args
+        self.args = TurbofanNetArgs() if not args else args
         mask = np.isin(mnist_ds.targets, digits)
         self.data = mnist_ds.data[mask].clone()
         self.targets = mnist_ds.targets[mask].clone()
@@ -225,28 +225,28 @@ class MNISTSubSet(torch.utils.data.Dataset):
         MNISTSubSet:
             The whole train or test dataset.
         """
-        data_transform = MNISTSubSet.default_input_transform()
+        data_transform = TurbofanSubSet.default_input_transform()
 
-        return MNISTSubSet(
-            MNISTSubSet.default_mnist_ds(is_train, data_transform),
+        return TurbofanSubSet(
+            TurbofanSubSet.default_mnist_ds(is_train, data_transform),
             digits=list(range(0, 10)),
             input_transform=data_transform
         )
 
 
-class MNISTModelTrainer(FedAvgModelTrainer):
+class TurbofanModelTrainer(FedAvgModelTrainer):
     """
-    Trainer for the MNIST data for the FedAvg algorithm. Extends
+    Trainer for the Turbofan data for the FedAvg algorithm. Extends
     the FedAvgModelTrainer, and implements all the relevant domain
     specific logic.
 
     Parameters
     ----------
 
-    args: MNISTNetArgs (default None)
-        The arguments for the MNISTNet
+    args: TurbofanNetArgs (default None)
+        The arguments for the TurbofanNet
 
-    model: MNISTNet (default None)
+    model: TurbofanNet (default None)
         The model for training.
 
     train_loader: DataLoader
@@ -270,16 +270,16 @@ class MNISTModelTrainer(FedAvgModelTrainer):
             test_loader=None,
             rounds_per_iter=10,
             round_type='batches'):
-        self.args = MNISTNetArgs() if not args else args
+        self.args = TurbofanNetArgs() if not args else args
 
         self.use_cuda = not self.args.no_cuda and torch.cuda.is_available()
         self.device = torch.device("cuda" if self.use_cuda else "cpu")
-        self.model = MNISTNet().to(self.device) if not model else model
+        self.model = TurbofanNet().to(self.device) if not model else model
 
         self.train_loader = \
-            MNISTSubSet.default_dataset(True).get_loader() if not train_loader else train_loader
+            TurbofanSubSet.default_dataset(True).get_loader() if not train_loader else train_loader
         self.test_loader = \
-            MNISTSubSet.default_dataset(False).get_loader() if not test_loader else test_loader
+            TurbofanSubSet.default_dataset(False).get_loader() if not test_loader else test_loader
 
         self.rounds_per_iter = rounds_per_iter
         self.round_type = round_type
