@@ -2,10 +2,15 @@
 Simple runner to start FedAvgServer server for the MNIST dataset.
 """
 import argparse
+import pandas as pd
 import sys
 from turbofan_fed_model import TurbofanModelTrainer, TurbofanSubSet
 from dc_federated.algorithms.fed_avg.fed_avg_server import FedAvgServer
 
+# to enable printing to log
+import logging
+logger = logging.getLogger(__file__)
+logger.setLevel(level=logging.INFO)
 
 def get_args():
     """
@@ -60,9 +65,34 @@ def run():
     """
     args = get_args()
 
+    df_train = pd.read_csv("FATE-Ubuntu/data/party_A_train.csv")
+    df_test = pd.read_csv("FATE-Ubuntu/data/party_A_test.csv")
+
+    # https://stackoverflow.com/questions/41924453/pytorch-how-to-use-dataloaders-for-custom-datasets
+    import torch
+    import numpy as np
+    from torch.utils.data import TensorDataset, DataLoader
+    import torch.utils.data as data_utils
+    train_inputs = df_train[['x0', 'x1', 'x2']].astype(np.float32)
+    train_target = df_train['y'].astype(np.float32)
+
+    test_inputs = df_test[['x0', 'x1', 'x2']].astype(np.float32)
+    test_target = df_test['y'].astype(np.float32)
+
+    inputs = torch.tensor(train_inputs.values)
+    targets = torch.tensor(train_target.values)
+    train_dataset = TensorDataset(inputs, targets)
+    train_data_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
+
+    inputs = torch.tensor(test_inputs.values)
+    targets = torch.tensor(test_target.values)
+    test_dataset = TensorDataset(inputs, targets)
+    test_data_loader = DataLoader(test_dataset, batch_size=10, shuffle=True)
+
+    # need to pass dataloader object into TurbofanModelTrainer()
     global_model_trainer = TurbofanModelTrainer(
-        train_loader=TurbofanSubSet.default_dataset(is_train=True).get_data_loader(),
-        test_loader=TurbofanSubSet.default_dataset(is_train=False).get_data_loader()
+        train_loader=train_data_loader,
+        test_loader=test_data_loader
     )
 
     fed_avg_server = FedAvgServer(global_model_trainer=global_model_trainer,

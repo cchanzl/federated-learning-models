@@ -2,8 +2,8 @@
 Simple runner to start FedAvgWorker for the MNIST dataset.
 """
 
+import pandas as pd
 import argparse
-
 from dc_federated.algorithms.fed_avg.fed_avg_worker import FedAvgWorker
 from turbofan_fed_model import TurbofanModelTrainer, TurbofanSubSet
 
@@ -29,15 +29,15 @@ def get_args():
                    type=str,
                    required=True)
 
-    p.add_argument("--digit-class",
-                   help="The digit set this worker should focus on - allowed values are 0, 1 and 2.",
-                   type=int,
+    p.add_argument("--party-code",
+                   help="The party data that should be assigned to this worker",
+                   type=str,
                    required=True)
 
     p.add_argument("--round-type",
                    help="What defines a training round. Allowed values (batches, epochs)",
                    type=str,
-                   default='batches',
+                   default='epochs',
                    required=False)
 
     p.add_argument("--rounds-per-iter",
@@ -60,28 +60,41 @@ def run():
     This should be run to start a FedAvgWorker. Run this script with the --help option
     to see what the options are.
 
-    --digit-class 0 corresponds to worker training only on digits 0 - 3,
-    1 corresponds to worker training only on digits 4 - 6 and 2 to 7 - 9.
+    --party-code A corresponds to Data set A. Only accepts A, B or C.
     """
-    digit_classes = [[0, 1, 2, 3],
-                     [4, 5, 6],
-                     [7, 8, 9]]
 
     args = get_args()
 
-    data_transform = TurbofanSubSet.default_input_transform()
-    mnist_ds_train = TurbofanSubSet.default_mnist_ds(is_train=True,
-                                                     input_transform=data_transform)
-    mnist_ds_test = TurbofanSubSet.default_mnist_ds(is_train=False,
-                                                    input_transform=data_transform)
+    train_file_name = 'FATE-Ubuntu/data/party_' + args.party_code + '_train.csv'
+    test_file_name = 'FATE-Ubuntu/data/party_' + args.party_code + '_test.csv'
+
+    df_train = pd.read_csv(train_file_name)
+    df_test = pd.read_csv(test_file_name)
+
+    # https://stackoverflow.com/questions/41924453/pytorch-how-to-use-dataloaders-for-custom-datasets
+    import torch
+    import numpy as np
+    from torch.utils.data import TensorDataset, DataLoader
+    import torch.utils.data as data_utils
+    train_inputs = df_train[['x0', 'x1', 'x2']].astype(np.float32)
+    train_target = df_train['y'].astype(np.float32)
+
+    test_inputs = df_test[['x0', 'x1', 'x2']].astype(np.float32)
+    test_target = df_test['y'].astype(np.float32)
+
+    inputs = torch.tensor(train_inputs.values)
+    targets = torch.tensor(train_target.values)
+    train_dataset = TensorDataset(inputs, targets)
+    train_data_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
+
+    inputs = torch.tensor(test_inputs.values)
+    targets = torch.IntTensor(test_target.values)
+    test_dataset = TensorDataset(inputs, targets)
+    test_data_loader = DataLoader(test_dataset, batch_size=10, shuffle=True)
 
     local_model_trainer = TurbofanModelTrainer(
-        train_loader=TurbofanSubSet(mnist_ds_train,
-                                    digits=digit_classes[args.digit_class],
-                                    input_transform=data_transform).get_data_loader(),
-        test_loader=TurbofanSubSet(mnist_ds_test,
-                                   digits=digit_classes[args.digit_class],
-                                   input_transform=data_transform).get_data_loader(),
+        train_loader=train_data_loader,
+        test_loader=test_data_loader,
         round_type=args.round_type,
         rounds_per_iter=args.rounds_per_iter
     )

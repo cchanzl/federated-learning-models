@@ -11,7 +11,6 @@ import torch.optim as optim
 from PIL import Image
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
-
 from dc_federated.algorithms.fed_avg.fed_avg_model_trainer import FedAvgModelTrainer
 
 
@@ -21,26 +20,25 @@ class TurbofanNet(nn.Module):
     """
     def __init__(self):
         super(TurbofanNet, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, 3, 1)
-        self.conv2 = nn.Conv2d(32, 64, 3, 1)
-        self.dropout1 = nn.Dropout2d(0.25)
-        self.dropout2 = nn.Dropout2d(0.5)
-        self.fc1 = nn.Linear(9216, 128)
-        self.fc2 = nn.Linear(128, 10)
+        self.layer1 = nn.Linear(3, 16)
+        # self.dropout1 = nn.Dropout2d(0.25)
+        self.layer2 = nn.Linear(16, 32)
+        # self.dropout2 = nn.Dropout2d(0.5)
+        self.layer3 = nn.Linear(32, 64)
+        self.output = nn.Linear(64, 1)
 
     def forward(self, x):
-        x = self.conv1(x)
+        x = self.layer1(x)
         x = F.relu(x)
-        x = self.conv2(x)
+        x = self.layer2(x)
         x = F.relu(x)
-        x = F.max_pool2d(x, 2)
-        x = self.dropout1(x)
-        x = torch.flatten(x, 1)
-        x = self.fc1(x)
+        # x = self.dropout1(x)
+        # x = torch.flatten(x, 1)
+        x = self.layer3(x)
         x = F.relu(x)
-        x = self.dropout2(x)
-        x = self.fc2(x)
-        output = F.log_softmax(x, dim=1)
+        # x = self.dropout2(x)
+        output = self.output(x)
+        # output = F.log_softmax(x, dim=1)
         return output
 
 
@@ -52,7 +50,7 @@ class TurbofanNetArgs(object):
         self.batch_size = 64
         self.test_batch_size = 1000
         self.epochs = 14
-        self.lr = 1
+        self.lr = 0.5
         self.gamma = 0.7
         self.no_cuda = False
         self.seed = 1
@@ -170,69 +168,6 @@ class TurbofanSubSet(torch.utils.data.Dataset):
         return torch.utils.data.DataLoader(
             self, batch_size=self.args.batch_size, shuffle=True, **kwargs)
 
-    @staticmethod
-    def default_input_transform():
-        """
-        Returns a default input transformation
-        
-        Returns
-        -------
-        
-        torch.transforms:
-            A default set of transformations for the inputs.
-        """
-        return transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))
-        ])
-
-    @staticmethod
-    def default_mnist_ds(is_train=True, input_transform=None):
-        """
-        Returns a default dataset.MNIST dataset.
-
-        Parameters
-        ---------
-
-        is_train: bool
-            Whether the dataset is for training or not.
-
-        input_transform: transforms
-            The input data transformation to use
-
-        Returns
-        -------
-
-        dataset.Dataset:
-            The default mnist dataset.
-        """
-        return datasets.MNIST('../data', train=is_train, download=True, transform=input_transform)
-
-    @staticmethod
-    def default_dataset(is_train):
-        """
-        Returns a train or test dataset on the whole dataset.
-
-        Parameters
-        ----------
-
-        is_train: bool
-            Whether to return the training or test dataset.
-
-        Returns
-        -------
-
-        MNISTSubSet:
-            The whole train or test dataset.
-        """
-        data_transform = TurbofanSubSet.default_input_transform()
-
-        return TurbofanSubSet(
-            TurbofanSubSet.default_mnist_ds(is_train, data_transform),
-            digits=list(range(0, 10)),
-            input_transform=data_transform
-        )
-
 
 class TurbofanModelTrainer(FedAvgModelTrainer):
     """
@@ -274,6 +209,8 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
 
         self.use_cuda = not self.args.no_cuda and torch.cuda.is_available()
         self.device = torch.device("cuda" if self.use_cuda else "cpu")
+
+        # default model
         self.model = TurbofanNet().to(self.device) if not model else model
 
         self.train_loader = \
@@ -288,7 +225,7 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
         self._train_batch_count = 0
         self._train_epoch_count = 0
 
-        self.optimizer = optim.Adadelta(self.model.parameters(), lr=self.args.lr)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.args.lr)
         self.scheduler = StepLR(self.optimizer, step_size=1, gamma=self.args.gamma)
 
     def stop_train(self, batch_idx, current_iter_epoch_start):
@@ -325,10 +262,13 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
         stop_training = False
         while not stop_training:
             for batch_idx, (data, target) in enumerate(self.train_loader):
+                # print('batch idx: '+str(batch_idx))
+                # print('rounds per iter: '+str(self.rounds_per_iter))
+                # print('current iter epoch start: '+str(current_iter_epoch_start))
                 data, target = data.to(self.device), target.to(self.device)
                 self.optimizer.zero_grad()
                 output = self.model(data)
-                loss = F.nll_loss(output, target)
+                loss = F.mse_loss(output, target)  # loss function
                 loss.backward()
                 self.optimizer.step()
                 if self._train_batch_count % self.args.log_interval == 0:
@@ -354,19 +294,15 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
         """
         self.model.eval()
         test_loss = 0
-        correct = 0
         with torch.no_grad():
             for data, target in self.test_loader:
                 data, target = data.to(self.device), target.to(self.device)
                 output = self.model(data)
-                test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
-                pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
-                correct += pred.eq(target.view_as(pred)).sum().item()
+                test_loss += F.mse_loss(output, target)
 
         test_loss /= len(self.test_loader.dataset)
 
-        print(f"\nTest set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(self.test_loader.dataset)}"
-              f"({100. * correct / len(self.test_loader.dataset):.0f}%)\n")
+        print(f"\nTest set: Average loss: {test_loss:.4f}")
 
     def get_model(self):
         """
