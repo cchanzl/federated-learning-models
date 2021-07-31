@@ -73,11 +73,13 @@ def run():
     import numpy as np
     from torch.utils.data import TensorDataset, DataLoader
     import torch.utils.data as data_utils
-    train_inputs = df_train[['x0', 'x1', 'x2']].astype(np.float32)
-    train_target = df_train['y'].astype(np.float32)
+    train_target = df_train.pop('y').astype(np.float32)
+    df_train.pop('id')
+    train_inputs = df_train.astype(np.float32)
 
-    test_inputs = df_test[['x0', 'x1', 'x2']].astype(np.float32)
-    test_target = df_test['y'].astype(np.float32)
+    test_target = df_test.pop('y').astype(np.float32)
+    df_test.pop('id')
+    test_inputs = df_test.astype(np.float32)
 
     inputs = torch.tensor(train_inputs.values)
     targets = torch.tensor(train_target.values)

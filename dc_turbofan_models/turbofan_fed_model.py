@@ -9,6 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from PIL import Image
+import pandas as pd
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 from dc_federated.algorithms.fed_avg.fed_avg_model_trainer import FedAvgModelTrainer
@@ -20,7 +21,7 @@ class TurbofanNet(nn.Module):
     """
     def __init__(self):
         super(TurbofanNet, self).__init__()
-        self.layer1 = nn.Linear(3, 16)
+        self.layer1 = nn.Linear(24, 16)
         # self.dropout1 = nn.Dropout2d(0.25)
         self.layer2 = nn.Linear(16, 32)
         # self.dropout2 = nn.Dropout2d(0.5)
@@ -33,7 +34,6 @@ class TurbofanNet(nn.Module):
         x = self.layer2(x)
         x = F.relu(x)
         # x = self.dropout1(x)
-        # x = torch.flatten(x, 1)
         x = self.layer3(x)
         x = F.relu(x)
         # x = self.dropout2(x)
@@ -47,7 +47,7 @@ class TurbofanNetArgs(object):
     Class to abstract the arguments for a TurbofanModelTrainer .
     """
     def __init__(self):
-        self.batch_size = 64
+        self.batch_size = 10
         self.test_batch_size = 1000
         self.epochs = 14
         self.lr = 0.5
@@ -257,17 +257,25 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
         using the given optimizer for the given number of epochs.
         print the results.
         """
+        yhat_epoch = []
+        ytru_epoch = []
         current_iter_epoch_start = self._train_epoch_count
         self.model.train()
         stop_training = False
         while not stop_training:
+            yhat_temp = []
+            ytru_temp = []
+            # the data is trained through x epochs, with each epoch going through y batches of grad descent
             for batch_idx, (data, target) in enumerate(self.train_loader):
-                # print('batch idx: '+str(batch_idx))
-                # print('rounds per iter: '+str(self.rounds_per_iter))
-                # print('current iter epoch start: '+str(current_iter_epoch_start))
                 data, target = data.to(self.device), target.to(self.device)
                 self.optimizer.zero_grad()
                 output = self.model(data)
+
+                # print(target)
+                # print(output.flatten().tolist())
+                yhat_temp = [*yhat_temp, *output.flatten().tolist()]
+                ytru_temp = [*ytru_temp, *target.flatten().tolist()]
+
                 loss = F.mse_loss(output, target)  # loss function
                 loss.backward()
                 self.optimizer.step()
@@ -284,8 +292,16 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
                     self.scheduler.step()
 
                 if self.stop_train(batch_idx, current_iter_epoch_start):
+                    yhat_epoch.append(yhat_temp)
+                    yhat_epoch.append(ytru_temp)
+                    df_hat = pd.DataFrame(yhat_epoch).T
+                    df_hat.to_csv("FATE-Ubuntu/dc_extracted/yhat.csv")
                     stop_training = True
                     break
+
+            # save results of each epoch
+            yhat_epoch.append(yhat_temp)
+
 
     def test(self):
         """
