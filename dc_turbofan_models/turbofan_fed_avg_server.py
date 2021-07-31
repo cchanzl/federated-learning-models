@@ -94,12 +94,12 @@ def run():
     # need to pass dataloader object into TurbofanModelTrainer()
     global_model_trainer = TurbofanModelTrainer(
         train_loader=train_data_loader,
-        test_loader=test_data_loader
+        test_loader=test_data_loader,
     )
 
     fed_avg_server = FedAvgServer(global_model_trainer=global_model_trainer,
                                   key_list_file=args.key_list_file,
-                                  update_lim=3,
+                                  update_lim=3,  # how many parties need to send info before global update starts
                                   server_host_ip=args.server_host_ip,
                                   server_port=args.server_port,
                                   ssl_enabled=args.ssl_enabled,

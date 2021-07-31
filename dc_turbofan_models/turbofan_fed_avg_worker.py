@@ -98,7 +98,7 @@ def run():
         train_loader=train_data_loader,
         test_loader=test_data_loader,
         round_type=args.round_type,
-        rounds_per_iter=args.rounds_per_iter
+        party='worker_'+args.party_code
     )
 
     fed_avg_worker = FedAvgWorker(fed_model_trainer=local_model_trainer,

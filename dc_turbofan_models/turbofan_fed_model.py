@@ -2,7 +2,7 @@
 Contains MNIST dataset specfic extension of FedAvgModelTrainer in
 MNISTModelTrainer + associtaed helper class.
 """
-
+import os
 import numpy as np
 import torch
 import torch.nn as nn
@@ -13,6 +13,10 @@ import pandas as pd
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
 from dc_federated.algorithms.fed_avg.fed_avg_model_trainer import FedAvgModelTrainer
+from sklearn.metrics import mean_squared_error
+
+# set file path
+from datetime import datetime  # to timestamp results of each model
 
 
 class TurbofanNet(nn.Module):
@@ -49,8 +53,8 @@ class TurbofanNetArgs(object):
     def __init__(self):
         self.batch_size = 10
         self.test_batch_size = 1000
-        self.epochs = 14
-        self.lr = 0.5
+        self.epochs = 6
+        self.lr = 0.2
         self.gamma = 0.7
         self.no_cuda = False
         self.seed = 1
@@ -197,14 +201,19 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
         How to measure the number of training iterations. Allowed
         values are 'batches' and 'epochs'
     """
+    # for saving file
+    _time_started = now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
     def __init__(
             self,
             args=None,
             model=None,
             train_loader=None,
             test_loader=None,
-            rounds_per_iter=10,
-            round_type='batches'):
+            rounds_per_iter=6,  # control number of epochs here!
+            round_type='batches',
+            party='server'):
+
         self.args = TurbofanNetArgs() if not args else args
 
         self.use_cuda = not self.args.no_cuda and torch.cuda.is_available()
@@ -213,10 +222,10 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
         # default model
         self.model = TurbofanNet().to(self.device) if not model else model
 
-        self.train_loader = \
-            TurbofanSubSet.default_dataset(True).get_loader() if not train_loader else train_loader
-        self.test_loader = \
-            TurbofanSubSet.default_dataset(False).get_loader() if not test_loader else test_loader
+        self.party = party
+
+        self.train_loader = TurbofanSubSet.default_dataset(True).get_loader() if not train_loader else train_loader
+        self.test_loader = TurbofanSubSet.default_dataset(False).get_loader() if not test_loader else test_loader
 
         self.rounds_per_iter = rounds_per_iter
         self.round_type = round_type
@@ -224,6 +233,13 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
         # for housekeepiing.
         self._train_batch_count = 0
         self._train_epoch_count = 0
+        self._train_aggre_count = 0
+
+        # make file path
+        self.file_path = "FATE-Ubuntu/dc_extracted/extracted/" + \
+                         TurbofanModelTrainer.now.replace('/', '_').replace(' ', '_').replace(':', '') \
+                         + "_" + self.party + "/"
+        os.mkdir(self.file_path)
 
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.args.lr)
         self.scheduler = StepLR(self.optimizer, step_size=1, gamma=self.args.gamma)
@@ -258,7 +274,6 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
         print the results.
         """
         yhat_epoch = []
-        ytru_epoch = []
         current_iter_epoch_start = self._train_epoch_count
         self.model.train()
         stop_training = False
@@ -280,7 +295,8 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
                 loss.backward()
                 self.optimizer.step()
                 if self._train_batch_count % self.args.log_interval == 0:
-                    print(f"Train Epoch: {self._train_epoch_count}"
+                    print(f"Aggregation round: {self._train_aggre_count+1}"
+                          f" Train Epoch: {self._train_epoch_count}"
                           f" [{self._train_batch_count * len(data)}/{len(self.train_loader.dataset)}"
                           f"({100. * self._train_batch_count / len(self.train_loader):.0f}%)]\tLoss: {loss.item():.6f}")
                 self._train_batch_count += 1
@@ -292,10 +308,12 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
                     self.scheduler.step()
 
                 if self.stop_train(batch_idx, current_iter_epoch_start):
+                    self._train_aggre_count += 1
                     yhat_epoch.append(yhat_temp)
                     yhat_epoch.append(ytru_temp)
                     df_hat = pd.DataFrame(yhat_epoch).T
-                    df_hat.to_csv("FATE-Ubuntu/dc_extracted/yhat.csv")
+                    file_name = self.file_path + str(self._train_aggre_count) + "_" + "yhat_train_" + self.party + ".csv"
+                    df_hat.to_csv(file_name)
                     stop_training = True
                     break
 
@@ -310,15 +328,25 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
         """
         self.model.eval()
         test_loss = 0
+        yhat = []
+        yhat_temp = []
+        ytru_temp = []
         with torch.no_grad():
             for data, target in self.test_loader:
                 data, target = data.to(self.device), target.to(self.device)
                 output = self.model(data)
                 test_loss += F.mse_loss(output, target)
+                yhat_temp = [*yhat_temp, *output.flatten().tolist()]
+                ytru_temp = [*ytru_temp, *target.flatten().tolist()]
 
-        test_loss /= len(self.test_loader.dataset)
+        yhat.append(yhat_temp)
+        yhat.append(ytru_temp)
+        df_hat = pd.DataFrame(yhat).T
+        file_name = self.file_path + str(self._train_aggre_count) + "_" + "yhat_test_" + self.party + ".csv"
+        df_hat.to_csv(file_name)
 
-        print(f"\nTest set: Average loss: {test_loss:.4f}")
+        rmse = mean_squared_error(df_hat.iloc[:, 0], df_hat.iloc[:, 1], squared=False)
+        print(f"\nTest set RMSE: {rmse:.2f}")
 
     def get_model(self):
         """
@@ -360,7 +388,7 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
 
     def get_per_session_train_size(self):
         """
-        Returns the size of the training set  used to train the local model
+        Returns the size of the training set used to train the local model
         in each iteration for use within FedAvg algorithm. If the
         round_type command line argument is 'batches', returns the number of
         batches per iteration, otherwise returns the actual number of samples
