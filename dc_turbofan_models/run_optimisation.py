@@ -16,15 +16,17 @@ for i in range(ITERATIONS):
     # randomised grid search
     lr_list = list(np.arange(5, 20 + 1, 0.5) / 100)
     epoch_list = list(np.arange(10, 50 + 1, 5))
-    nodes_list = [[8, 16, 32], [16, 32, 64], [32, 64, 128], [64, 128, 256], [128, 256, 512]]
+    nodes_list = [[8, 16, 32], [16, 32, 64], [32, 64, 128], [64, 128, 256], [128, 256, 512], [256, 512, 1024]]
     batch_size_list = list(np.arange(10, 50 + 1, 5))
     iter_list = list(np.arange(5, 15 + 1, 1))
+    dropout_list = list(np.arange(5, 50 + 1, 0.5) / 10)
 
     # init parameters
     lr = random.sample(lr_list, 1)[0]
     nodes_per_layer = random.sample(nodes_list, 1)[0]
     batch_sz = random.sample(batch_size_list, 1)[0]
     iter_no = random.sample(iter_list, 1)[0]
+    dropout = random.sample(dropout_list, 1)[0]
 
     batch_size = '--batch-size ' + str(batch_sz) + ' '
     learn_rate = '--learn-rate ' + str(lr) + ' '
@@ -32,6 +34,7 @@ for i in range(ITERATIONS):
     layer_one = '--layer-one ' + str(nodes_per_layer[0]) + ' '
     layer_two = '--layer-two ' + str(nodes_per_layer[1]) + ' '
     layer_three = '--layer-three ' + str(nodes_per_layer[2]) + ' '
+    drop_out = '--drop-out ' + str(dropout) + ' '
     party_code = '--party-code '
 
     print(f"Iteration: {i+1}"
@@ -40,12 +43,13 @@ for i in range(ITERATIONS):
           f" Iteration round: {iter_no}"
           f" Layer one: {nodes_per_layer[0]}"
           f" Layer two: {nodes_per_layer[1]}"
-          f" Layer three: {nodes_per_layer[2]}")
+          f" Layer three: {nodes_per_layer[2]}"
+          f" Drop out: {dropout}")
 
     for x, y in zip(x_coor, y_coor):
         time.sleep(3)
         server = "python FATE-Ubuntu/dc_turbofan_models/turbofan_fed_avg_server.py " + \
-                 batch_size + learn_rate + itera_roun + layer_one + layer_two + layer_three
+                 batch_size + learn_rate + itera_roun + layer_one + layer_two + layer_three + drop_out
 
         if x == 100 and y == 100:
             pg.moveTo(x, y, duration=1)  # x, y
@@ -55,7 +59,8 @@ for i in range(ITERATIONS):
             continue
 
         party = chr(65+count)
-        worker = base + batch_size + learn_rate + itera_roun + layer_one + layer_two + layer_three + party_code + party
+        worker = base + batch_size + learn_rate + itera_roun + layer_one + layer_two + layer_three + \
+                 drop_out + party_code + party
 
         pg.moveTo(x, y, duration=1)  # x, y
         pg.click(x, y)

@@ -26,22 +26,21 @@ class TurbofanNet(nn.Module):
     def __init__(self):
         super(TurbofanNet, self).__init__()
         self.layer1 = nn.Linear(24, 32)
-        # self.dropout1 = nn.Dropout(0.25)
+        self.dropout1 = nn.Dropout(0.25)
         self.layer2 = nn.Linear(32, 64)
-        # self.dropout2 = nn.Dropout(0.25)
+        self.dropout2 = nn.Dropout(0.25)
         self.layer3 = nn.Linear(64, 128)
         self.output = nn.Linear(128, 1)
 
     def forward(self, x):
         x = self.layer1(x)
         x = F.relu(x)
-        # x = self.dropout1(x)
+        x = self.dropout1(x)
         x = self.layer2(x)
         x = F.relu(x)
-        # x = self.dropout2(x)
+        x = self.dropout2(x)
         x = self.layer3(x)
         x = F.relu(x)
-        # x = self.dropout2(x)
         output = self.output(x)
         # output = F.log_softmax(x, dim=1)
         return output
@@ -148,9 +147,9 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
 
         # Save hyperparameters
         file_name = self.file_path + "0_" + party + "_hyperparamters.csv"
-        headers = ['batch_size', 'learn_rate', 'epochs', 'iter_rounds', 'layer_1', 'layer_2', 'layer_3']
+        headers = ['batch_size', 'learn_rate', 'epochs', 'iter_rounds', 'layer_1', 'layer_2', 'layer_3', 'drop_out']
         row = [self.args.batch_size, self.args.lr, self.args.epochs, rounds_per_iter,
-               self.model.layer1, self.model.layer2, self.model.layer3]
+               self.model.layer1, self.model.layer2, self.model.layer3, self.model.dropout1]
         df_hyper = pd.DataFrame(row).T
         df_hyper.columns = headers
         df_hyper.to_csv(file_name)

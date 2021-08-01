@@ -95,6 +95,12 @@ def get_args():
                    default=64,
                    required=False)
 
+    p.add_argument("--drop-out",
+                   help="amount of dropout in layer 1 and 2",
+                   type=float,
+                   default=0.1,
+                   required=False)
+
     return p.parse_args()
 
 
@@ -146,7 +152,9 @@ def run():
     # define model
     model = TurbofanNet()
     model.layer1 = nn.Linear(24, args.layer_one)
+    model.dropout1 = nn.Dropout(args.drop_out)
     model.layer2 = nn.Linear(args.layer_one, args.layer_two)
+    model.dropout2 = nn.Dropout(args.drop_out)
     model.layer3 = nn.Linear(args.layer_two, args.layer_three)
     model.output = nn.Linear(args.layer_three, 1)
 
