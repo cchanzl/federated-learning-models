@@ -3,12 +3,12 @@ Contains MNIST dataset specfic extension of FedAvgModelTrainer in
 MNISTModelTrainer + associtaed helper class.
 """
 import os
+import random
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from PIL import Image
 import pandas as pd
 from torchvision import datasets, transforms
 from torch.optim.lr_scheduler import StepLR
@@ -25,19 +25,20 @@ class TurbofanNet(nn.Module):
     """
     def __init__(self):
         super(TurbofanNet, self).__init__()
-        self.layer1 = nn.Linear(24, 16)
-        # self.dropout1 = nn.Dropout2d(0.25)
-        self.layer2 = nn.Linear(16, 32)
-        # self.dropout2 = nn.Dropout2d(0.5)
-        self.layer3 = nn.Linear(32, 64)
-        self.output = nn.Linear(64, 1)
+        self.layer1 = nn.Linear(24, 32)
+        # self.dropout1 = nn.Dropout(0.25)
+        self.layer2 = nn.Linear(32, 64)
+        # self.dropout2 = nn.Dropout(0.25)
+        self.layer3 = nn.Linear(64, 128)
+        self.output = nn.Linear(128, 1)
 
     def forward(self, x):
         x = self.layer1(x)
         x = F.relu(x)
+        # x = self.dropout1(x)
         x = self.layer2(x)
         x = F.relu(x)
-        # x = self.dropout1(x)
+        # x = self.dropout2(x)
         x = self.layer3(x)
         x = F.relu(x)
         # x = self.dropout2(x)
@@ -54,12 +55,13 @@ class TurbofanNetArgs(object):
         self.batch_size = 10
         self.test_batch_size = 1000
         self.epochs = 6
-        self.lr = 0.2
+        self.lr = 0.05
         self.gamma = 0.7
         self.no_cuda = False
         self.seed = 1
         self.log_interval = 10
         self.save_model = False
+
 
     def print(self):
         print(f"batch_size: {self.batch_size}")
@@ -71,106 +73,6 @@ class TurbofanNetArgs(object):
         print(f"seed: {self.seed}")
         print(f"log_interval: {self.log_interval}")
         print(f"save_model: {self.save_model}")
-
-
-class TurbofanSubSet(torch.utils.data.Dataset):
-    """
-    Represents a Turbofan dataset subset. In particular, torchvision provides a
-    Turbofan Dataset. This class wraps around that to deliver only a subset of
-    digits in the train and test sets.
-
-    Parameters
-    ----------
-
-    mnist_ds: torchvision.MNIST
-        The core mnist dataset object.
-
-    digits: int list
-        The digits to restrict the data subset to
-
-    args: MNISTNetArgs (default None)
-        The arguments for the training.
-
-    input_transform: torch.transforms (default None)
-        The transformation to apply to the inputs
-
-    target_transform: torch.transforms (default None)
-        The transformation to apply to the target
-    """
-    def __init__(self, mnist_ds, digits, args=None, input_transform=None, target_transform=None):
-
-        self.digits = digits
-        self.args = TurbofanNetArgs() if not args else args
-        mask = np.isin(mnist_ds.targets, digits)
-        self.data = mnist_ds.data[mask].clone()
-        self.targets = mnist_ds.targets[mask].clone()
-        self.input_transform = input_transform
-        self.target_transform = target_transform
-
-    def __getitem__(self, index):
-        """
-        Implementation of a function required to extend Dataset. Returns\
-        the dataset item at the given index.
-
-        Parameters
-        ----------
-        index: int
-            The index of the input + target to return.
-
-        Returns
-        -------
-
-        pair of torch.tensors
-            The input and the target.
-        """
-        img, target = self.data[index], self.targets[index]
-        img = Image.fromarray(img.numpy(), mode='L')
-
-        if self.input_transform is not None: img = self.input_transform(img)
-        if self.target_transform is not None: target = self.target_transform(target)
-
-        return img, target
-
-    def __len__(self):
-        """
-        Implementation of a function required to extend Dataset. Returns\
-        the length of the dataset.
-
-        Returns
-        -------
-
-        int:
-            The length of the dataset.
-        """
-        return len(self.data)
-
-    def get_data_loader(self, use_cuda=False, kwargs=None):
-        """
-        Returns a DataLoader object for this dataset
-
-
-        Parameters
-        ----------
-
-        use_cuda: bool (default False)
-            Whether to use cuda or not.
-
-        kwargs: dict
-            Paramters to pass on to the DataLoader
-
-
-        Returns
-        -------
-        
-        DataLoader:
-            A dataloader for this dataset.
-        """
-
-        if kwargs is None:
-            kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
-
-        return torch.utils.data.DataLoader(
-            self, batch_size=self.args.batch_size, shuffle=True, **kwargs)
 
 
 class TurbofanModelTrainer(FedAvgModelTrainer):
@@ -210,7 +112,7 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
             model=None,
             train_loader=None,
             test_loader=None,
-            rounds_per_iter=6,  # control number of epochs here!
+            rounds_per_iter=None,  # control number of epochs here!
             round_type='batches',
             party='server'):
 
@@ -224,8 +126,8 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
 
         self.party = party
 
-        self.train_loader = TurbofanSubSet.default_dataset(True).get_loader() if not train_loader else train_loader
-        self.test_loader = TurbofanSubSet.default_dataset(False).get_loader() if not test_loader else test_loader
+        self.train_loader = train_loader
+        self.test_loader = test_loader
 
         self.rounds_per_iter = rounds_per_iter
         self.round_type = round_type
@@ -243,6 +145,15 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
 
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.args.lr)
         self.scheduler = StepLR(self.optimizer, step_size=1, gamma=self.args.gamma)
+
+        # Save hyperparameters
+        file_name = self.file_path + "0_" + party + "_hyperparamters.csv"
+        headers = ['batch_size', 'learn_rate', 'epochs', 'iter_rounds', 'layer_1', 'layer_2', 'layer_3']
+        row = [self.args.batch_size, self.args.lr, self.args.epochs, rounds_per_iter,
+               self.model.layer1, self.model.layer2, self.model.layer3]
+        df_hyper = pd.DataFrame(row).T
+        df_hyper.columns = headers
+        df_hyper.to_csv(file_name)
 
     def stop_train(self, batch_idx, current_iter_epoch_start):
         """
@@ -305,7 +216,7 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
                 if self._train_batch_count >= len(self.train_loader):
                     self._train_epoch_count += 1
                     self._train_batch_count = 0
-                    self.scheduler.step()
+                    # self.scheduler.step()  # decays the learning rate as epoch increases
 
                 if self.stop_train(batch_idx, current_iter_epoch_start):
                     self._train_aggre_count += 1

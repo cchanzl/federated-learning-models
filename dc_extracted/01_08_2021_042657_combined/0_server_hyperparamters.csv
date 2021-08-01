@@ -1,0 +1,2 @@
+,batch_size,learn_rate,epochs,iter_rounds,layer_1,layer_2,layer_3
+0,10,0.05,10,,"Linear(in_features=24, out_features=32, bias=True)","Linear(in_features=32, out_features=64, bias=True)","Linear(in_features=64, out_features=128, bias=True)"
