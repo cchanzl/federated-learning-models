@@ -35,10 +35,10 @@ class TurbofanNet(nn.Module):
     def forward(self, x):
         x = self.layer1(x)
         x = F.relu(x)
-        x = self.dropout1(x)
+        # x = self.dropout1(x)
         x = self.layer2(x)
         x = F.relu(x)
-        x = self.dropout2(x)
+        # x = self.dropout2(x)
         x = self.layer3(x)
         x = F.relu(x)
         output = self.output(x)

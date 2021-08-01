@@ -19,14 +19,15 @@ for i in range(ITERATIONS):
     nodes_list = [[8, 16, 32], [16, 32, 64], [32, 64, 128], [64, 128, 256], [128, 256, 512], [256, 512, 1024]]
     batch_size_list = list(np.arange(10, 50 + 1, 5))
     iter_list = list(np.arange(5, 15 + 1, 1))
-    dropout_list = list(np.arange(5, 50 + 1, 0.5) / 10)
+    dropout_list = list(np.arange(0, 6 + 1, 0.5) / 10)
 
     # init parameters
     lr = random.sample(lr_list, 1)[0]
     nodes_per_layer = random.sample(nodes_list, 1)[0]
     batch_sz = random.sample(batch_size_list, 1)[0]
     iter_no = random.sample(iter_list, 1)[0]
-    dropout = random.sample(dropout_list, 1)[0]
+    # dropout = random.sample(dropout_list, 1)[0]
+    dropout = 0  # set dropout to 0
 
     batch_size = '--batch-size ' + str(batch_sz) + ' '
     learn_rate = '--learn-rate ' + str(lr) + ' '
@@ -70,5 +71,5 @@ for i in range(ITERATIONS):
 
     pg.moveTo(x_coor[0], y_coor[0], duration=1)  # x, y
     pg.click(x_coor[0], y_coor[0])
-    time.sleep(iter_no*5)
+    time.sleep(iter_no*10)
     pg.hotkey("ctrlleft", "c")

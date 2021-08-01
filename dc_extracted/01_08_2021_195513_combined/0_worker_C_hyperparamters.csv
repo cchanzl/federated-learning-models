@@ -1,0 +1,2 @@
+,batch_size,learn_rate,epochs,iter_rounds,layer_1,layer_2,layer_3,drop_out
+0,30,0.07,10,15,"Linear(in_features=24, out_features=8, bias=True)","Linear(in_features=8, out_features=16, bias=True)","Linear(in_features=16, out_features=32, bias=True)","Dropout(p=0.3, inplace=False)"
