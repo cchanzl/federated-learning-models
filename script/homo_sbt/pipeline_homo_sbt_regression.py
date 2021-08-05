@@ -58,16 +58,21 @@ def main(config="../../config.yaml", namespace=""):
     filename = ""
     hyperparameter_config = []
 
-    ITERATIONS = 10
+    ITERATIONS = 1
     train = True
     if train:
         for iteration in range(ITERATIONS):
 
             # Set random grid search parameters
-            num_tree = int(random.sample(list(np.arange(30, 40, 5)), 1)[0])
-            lrn_rate = random.sample(list(np.arange(1, 20, 5)/100), 1)[0]
-            max_dept = int(random.sample(list(np.arange(5, 20, 1)), 1)[0])
-            val_freq = int(random.sample(list(np.arange(10, 30, 1)), 1)[0])
+            # num_tree = int(random.sample(list(np.arange(30, 40, 5)), 1)[0])
+            # lrn_rate = random.sample(list(np.arange(1, 20, 5)/100), 1)[0]
+            # max_dept = int(random.sample(list(np.arange(5, 20, 1)), 1)[0])
+            # val_freq = int(random.sample(list(np.arange(10, 30, 1)), 1)[0])
+
+            num_tree = 30
+            lrn_rate = 0.11
+            max_dept = 5
+            val_freq = 25
 
             print("Start training iteration " + str(iteration))
             print("num_tree: " + str(num_tree))

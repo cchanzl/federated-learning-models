@@ -34,17 +34,17 @@ def main(config="../../config.yaml", data_base='/main/data'):
     if isinstance(config, str):
         config = load_job_config(config)
 
-    party_A_train = "party_A_train.csv"
-    party_B_train = "party_B_train.csv"
-    party_C_train = "party_C_train.csv"
+    party_A_train = "party_A_train_balanced.csv"
+    party_B_train = "party_B_train_balanced.csv"
+    party_C_train = "party_C_train_balanced.csv"
 
     party_A_train_name = "nasa_A"
     party_B_train_name = "nasa_B"
     party_C_train_name = "nasa_C"
 
-    party_A_test = "party_A_test.csv"
-    party_B_test = "party_B_test.csv"
-    party_C_test = "party_C_test.csv"
+    party_A_test = "party_A_test_balanced.csv"
+    party_B_test = "party_B_test_balanced.csv"
+    party_C_test = "party_C_test_balanced.csv"
 
     party_A_test_name = "nasa_A_test"
     party_B_test_name = "nasa_B_test"
