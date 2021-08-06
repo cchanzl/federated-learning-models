@@ -31,19 +31,30 @@ class TurbofanNet(nn.Module):
         self.dropout2 = nn.Dropout(0.25)
         self.layer3 = nn.Linear(64, 128)
         self.output = nn.Linear(128, 1)
+        self.activation = 'relu'
+
+    def determine_activation(self, x):
+        if self.activation=='relu':
+            return F.relu(x)
+        if self.activation=='sigmoid':
+            return F.sigmoid(x)
+        if self.activation=='tanh':
+            return F.tanh(x)
+        return x
 
     def forward(self, x):
         x = self.layer1(x)
-        x = F.relu(x)
-        # x = self.dropout1(x)
+        x = self.dropout1(x)
+        x = self.determine_activation(x)
         x = self.layer2(x)
-        x = F.relu(x)
-        # x = self.dropout2(x)
+        x = self.dropout2(x)
+        x = self.determine_activation(x)
         x = self.layer3(x)
-        x = F.relu(x)
+        x = self.determine_activation(x)
         output = self.output(x)
         # output = F.log_softmax(x, dim=1)
         return output
+
 
 
 class TurbofanNetArgs(object):
@@ -147,9 +158,9 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
 
         # Save hyperparameters
         file_name = self.file_path + "0_" + party + "_hyperparamters.csv"
-        headers = ['batch_size', 'learn_rate', 'epochs', 'iter_rounds', 'layer_1', 'layer_2', 'layer_3', 'drop_out']
+        headers = ['batch_size', 'learn_rate', 'epochs', 'iter_rounds', 'layer_1', 'layer_2', 'layer_3', 'drop_out', 'activation']
         row = [self.args.batch_size, self.args.lr, self.args.epochs, rounds_per_iter,
-               self.model.layer1, self.model.layer2, self.model.layer3, self.model.dropout1]
+               self.model.layer1, self.model.layer2, self.model.layer3, self.model.dropout1, self.model.activation]
         df_hyper = pd.DataFrame(row).T
         df_hyper.columns = headers
         df_hyper.to_csv(file_name)
@@ -200,7 +211,7 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
                 # print(output.flatten().tolist())
                 yhat_temp = [*yhat_temp, *output.flatten().tolist()]
                 ytru_temp = [*ytru_temp, *target.flatten().tolist()]
-
+                target = target.view((len(target), 1))
                 loss = F.mse_loss(output, target)  # loss function
                 loss.backward()
                 self.optimizer.step()
@@ -244,6 +255,7 @@ class TurbofanModelTrainer(FedAvgModelTrainer):
         with torch.no_grad():
             for data, target in self.test_loader:
                 data, target = data.to(self.device), target.to(self.device)
+                target = target.view((len(target), 1))
                 output = self.model(data)
                 test_loss += F.mse_loss(output, target)
                 yhat_temp = [*yhat_temp, *output.flatten().tolist()]

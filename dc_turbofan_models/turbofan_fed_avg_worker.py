@@ -101,6 +101,18 @@ def get_args():
                    default=0.1,
                    required=False)
 
+    p.add_argument("--acti-func",
+                   help="Activation function used",
+                   type=str,
+                   default='tanh',
+                   required=False)
+
+    p.add_argument("--bal-imbal",
+                   help="To use balanced or imbalanced dataset",
+                   type=str,
+                   default='',
+                   required=False)
+
     return p.parse_args()
 
 
@@ -114,8 +126,8 @@ def run():
 
     args = get_args()
 
-    train_file_name = 'FATE-Ubuntu/data/party_' + args.party_code + '_train.csv'
-    test_file_name = 'FATE-Ubuntu/data/party_' + args.party_code + '_test.csv'
+    train_file_name = 'FATE-Ubuntu/data/party_' + args.party_code + '_train' + args.bal_imbal + '.csv'
+    test_file_name = 'FATE-Ubuntu/data/party_' + args.party_code + '_test' + args.bal_imbal + '.csv'
 
     df_train = pd.read_csv(train_file_name)
     df_test = pd.read_csv(test_file_name)
@@ -151,6 +163,7 @@ def run():
 
     # define model
     model = TurbofanNet()
+    model.activation = args.acti_func
     model.layer1 = nn.Linear(24, args.layer_one)
     model.dropout1 = nn.Dropout(args.drop_out)
     model.layer2 = nn.Linear(args.layer_one, args.layer_two)

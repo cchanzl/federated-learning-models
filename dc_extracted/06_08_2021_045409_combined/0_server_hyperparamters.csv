@@ -1,0 +1,2 @@
+,batch_size,learn_rate,epochs,iter_rounds,layer_1,layer_2,layer_3,drop_out,activation
+0,20,0.149,10,,"Linear(in_features=24, out_features=8, bias=True)","Linear(in_features=8, out_features=16, bias=True)","Linear(in_features=16, out_features=32, bias=True)","Dropout(p=0.0, inplace=False)",relu

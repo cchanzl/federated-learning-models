@@ -88,6 +88,17 @@ def get_args():
                    type=float,
                    default=0.1,
                    required=False)
+    p.add_argument("--acti-func",
+                   help="Activation function used",
+                   type=str,
+                   default='relu',
+                   required=False)
+
+    p.add_argument("--bal-imbal",
+                   help="To use balanced or imbalanced dataset",
+                   type=str,
+                   default='',
+                   required=False)
 
     args, rest = p.parse_known_args()
 
@@ -106,8 +117,8 @@ def run():
     """
     args = get_args()
 
-    df_train = pd.read_csv("FATE-Ubuntu/data/party_A_train.csv")
-    df_test = pd.read_csv("FATE-Ubuntu/data/party_A_test.csv")
+    df_train = pd.read_csv("FATE-Ubuntu/data/party_A_train" + args.bal_imbal + '.csv')
+    df_test = pd.read_csv("FATE-Ubuntu/data/party_A_test" + args.bal_imbal + '.csv')
 
     # https://stackoverflow.com/questions/41924453/pytorch-how-to-use-dataloaders-for-custom-datasets
     import torch
@@ -140,6 +151,7 @@ def run():
 
     # define model
     model = TurbofanNet()
+    model.activation = args.acti_func
     model.layer1 = nn.Linear(24, args.layer_one)
     model.dropout1 = nn.Dropout(args.drop_out)
     model.layer2 = nn.Linear(args.layer_one, args.layer_two)
