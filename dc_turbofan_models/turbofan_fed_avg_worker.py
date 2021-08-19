@@ -108,7 +108,7 @@ def get_args():
                    required=False)
 
     p.add_argument("--bal-imbal",
-                   help="To use balanced or imbalanced dataset",
+                   help="To use balanced or imbalanced dataset. default is imbalanced",
                    type=str,
                    default='',
                    required=False)

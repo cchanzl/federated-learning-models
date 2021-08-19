@@ -125,11 +125,11 @@ def run():
     from torch.utils.data import TensorDataset, DataLoader
 
     train_target = df_train.pop('y').astype(np.float32)
-    df_train.pop('id')
+    df_train.pop('id')  # remove id from data
     train_inputs = df_train.astype(np.float32)
 
     test_target = df_test.pop('y').astype(np.float32)
-    df_test.pop('id')
+    df_test.pop('id')  # remove id from data
     test_inputs = df_test.astype(np.float32)
 
     inputs = torch.tensor(train_inputs.values)
