@@ -1,4 +1,4 @@
-#  python /main/script/homo_sbt/pipeline_homo_sbt_regression.py -config /main/script/homo_sbt/config.yaml
+#  python /main/script/homo_sbt/pipeline_homo_sbt_regression.py -config /main/script/homo_sbt/config_5.yaml
 #  Copyright 2019 The FATE Authors. All Rights Reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,17 +42,31 @@ def main(config="../../config.yaml", namespace=""):
     host = parties.host  # multiple other parties
     arbiter = parties.arbiter[0]
 
+    # key parameters
+    num_parties = 5
+    train_data = {}
+    test_data = {}
+
     backend = config.backend
     work_mode = config.work_mode
 
-    party_A_train_data = {"name": "nasa_A", "namespace": f"experiment"}
-    party_A_test_data = {"name": "nasa_A_test", "namespace": f"experiment"}
+    namespace = f"experiment"
 
-    party_B_train_data = {"name": "nasa_B", "namespace": f"experiment"}
-    party_B_test_data = {"name": "nasa_B_test", "namespace": f"experiment"}
+    for i in range(num_parties):
+        identifier = str(i+1)
+        if num_parties == 3:
+            identifier = chr(65 + i)
+        train_data[i] = {"name": "nasa_" + identifier, "namespace": namespace}
+        test_data[i] = {"name": "nasa_" + identifier + "_test", "namespace": namespace}
 
-    party_C_train_data = {"name": "nasa_C", "namespace": f"experiment"}
-    party_C_test_data = {"name": "nasa_C_test", "namespace": f"experiment"}
+    # party_1_train_data = {"name": "nasa_A", "namespace": namespace}
+    # party_1_test_data = {"name": "nasa_A_test", "namespace": namespace}
+    #
+    # party_2_train_data = {"name": "nasa_B", "namespace": namespace}
+    # party_2_test_data = {"name": "nasa_B_test", "namespace": namespace}
+    #
+    # party_3_train_data = {"name": "nasa_C", "namespace": namespace}
+    # party_3_test_data = {"name": "nasa_C_test", "namespace": namespace}
 
     job_parameters = JobParameters(backend=backend, work_mode=work_mode)
     filename = ""
@@ -86,22 +100,24 @@ def main(config="../../config.yaml", namespace=""):
 
             # 0 for train data, 1 for test data
             datatransform_0 = DataTransform(name="datatransform_0")
-            reader_0= Reader(name="reader_0")
+            reader_0 = Reader(name="reader_0")
+            for i in range(num_parties):
+                if i == 0:
+                    reader_0.get_party_instance(role='guest', party_id=guest).component_param(table=train_data[i])
+                    continue
+                reader_0.get_party_instance(role='host', party_id=host[i-1]).component_param(table=train_data[i])
 
-            reader_0.get_party_instance(role='guest', party_id=guest).component_param(table=party_C_train_data)
-            reader_0.get_party_instance(role='host', party_id=host[0]).component_param(table=party_B_train_data)
-            reader_0.get_party_instance(role='host', party_id=host[1]).component_param(table=party_A_train_data)
+            # reader_0.get_party_instance(role='guest', party_id=guest).component_param(table=party_3_train_data)
+            # reader_0.get_party_instance(role='host', party_id=host[0]).component_param(table=party_2_train_data)
+            # reader_0.get_party_instance(role='host', party_id=host[1]).component_param(table=party_1_train_data)
 
             datatransform_0.get_party_instance(role='guest', party_id=guest).component_param(with_label=True,
-                                                                                      output_format="dense",
-                                                                                      label_type="float")
-            datatransform_0.get_party_instance(role='host', party_id=host[0]).component_param(with_label=True,
-                                                                                       output_format="dense",
-                                                                                       label_type="float")
-            datatransform_0.get_party_instance(role='host', party_id=host[1]).component_param(with_label=True,
-                                                                                       output_format="dense",
-                                                                                       label_type="float")
-
+                                                                                             output_format="dense",
+                                                                                             label_type="float")
+            for i in range(num_parties):
+                datatransform_0.get_party_instance(role='host', party_id=host[i-1]).component_param(with_label=True,
+                                                                                                    output_format="dense",
+                                                                                                    label_type="float")
             homo_secureboost_0 = HomoSecureBoost(name="homo_secureboost_0",
                                                  learning_rate=lrn_rate,
                                                  num_trees=num_tree,  # 50 is best
@@ -110,7 +126,6 @@ def main(config="../../config.yaml", namespace=""):
                                                  objective_param={"objective": "lse"},  # lse is best
                                                  tree_param={"max_depth": max_dept},
                                                  validation_freqs=val_freq)
-
             evaluation_0 = Evaluation(name='evaluation_0', eval_type='regression')
             pipeline.add_component(reader_0)
             pipeline.add_component(datatransform_0, data=Data(data=reader_0.output.data))
@@ -122,7 +137,6 @@ def main(config="../../config.yaml", namespace=""):
                                                                  validate_data=homo_data_split_1.output.data.validate_data))
             pipeline.add_component(evaluation_0, data=Data(homo_secureboost_0.output.data))
             pipeline.compile()
-
             pipeline.fit(job_parameters)
             print(f"Train Evaluation summary:\n{json.dumps(pipeline.get_component('evaluation_0').get_summary(), indent=4)}")
             # json_string = json.dumps(pipeline.get_component('evaluation_0').get_summary())
@@ -146,20 +160,31 @@ def main(config="../../config.yaml", namespace=""):
             reader_1 = Reader(name='reader_1')
             datatransform_1 = DataTransform(name='datatransform_1')
 
-            reader_1.get_party_instance(role='guest', party_id=guest).component_param(table=party_C_test_data)
-            reader_1.get_party_instance(role='host', party_id=host[0]).component_param(table=party_B_test_data)
-            reader_1.get_party_instance(role='host', party_id=host[1]).component_param(table=party_A_test_data)
+            for i in range(num_parties):
+                if i == 0:
+                    reader_1.get_party_instance(role='guest', party_id=guest).component_param(table=test_data[i])
+                    continue
+                reader_1.get_party_instance(role='host', party_id=host[i-1]).component_param(table=test_data[i])
+
+            # reader_1.get_party_instance(role='guest', party_id=guest).component_param(table=party_3_test_data)
+            # reader_1.get_party_instance(role='host', party_id=host[0]).component_param(table=party_2_test_data)
+            # reader_1.get_party_instance(role='host', party_id=host[1]).component_param(table=party_1_test_data)
 
             datatransform_1.get_party_instance(role='guest', party_id=guest).component_param(with_label=True,
                                                                                              output_format="dense",
                                                                                              label_type="float")
-            datatransform_1.get_party_instance(role='host', party_id=host[0]).component_param(with_label=True,
-                                                                                              output_format="dense",
-                                                                                              label_type="float")
-            datatransform_1.get_party_instance(role='host', party_id=host[1]).component_param(with_label=True,
-                                                                                              output_format="dense",
-                                                                                              label_type="float")
 
+            for i in range(num_parties):
+                datatransform_1.get_party_instance(role='host', party_id=host[i-1]).component_param(with_label=True,
+                                                                                                    output_format="dense",
+                                                                                                    label_type="float")
+
+            # datatransform_1.get_party_instance(role='host', party_id=host[0]).component_param(with_label=True,
+            #                                                                                   output_format="dense",
+            #                                                                                   label_type="float")
+            # datatransform_1.get_party_instance(role='host', party_id=host[1]).component_param(with_label=True,
+            #                                                                                   output_format="dense",
+            #                                                                                   label_type="float")
 
             predict_pipeline = PipeLine()  # new pipeline object
             predict_pipeline.add_component(reader_1)
@@ -170,8 +195,14 @@ def main(config="../../config.yaml", namespace=""):
             # define evaluation component
             evaluation_1 = Evaluation(name="evaluation_1")
             evaluation_1.get_party_instance(role="guest", party_id=guest).component_param(need_run=True, eval_type="regression")
-            evaluation_1.get_party_instance(role="host", party_id=host[0]).component_param(need_run=True, eval_type="regression")
-            evaluation_1.get_party_instance(role="host", party_id=host[1]).component_param(need_run=True, eval_type="regression")
+
+            for i in range(num_parties):
+                evaluation_1.get_party_instance(role="host", party_id=host[i-1]).component_param(need_run=True,
+                                                                                                 eval_type="regression")
+
+            # evaluation_1.get_party_instance(role="host", party_id=host[0]).component_param(need_run=True, eval_type="regression")
+            # evaluation_1.get_party_instance(role="host", party_id=host[1]).component_param(need_run=True, eval_type="regression")
+
             predict_pipeline.add_component(evaluation_1, data=Data(data=pipeline.homo_secureboost_0.output.data))
 
             # run predict model

@@ -93,7 +93,6 @@ def get_args():
                    type=str,
                    default='relu',
                    required=False)
-
     p.add_argument("--bal-imbal",
                    help="To use balanced or imbalanced dataset",
                    type=str,
@@ -170,7 +169,7 @@ def run():
 
     fed_avg_server = FedAvgServer(global_model_trainer=global_model_trainer,
                                   key_list_file=args.key_list_file,
-                                  update_lim=3,  # how many parties need to send info before global update starts
+                                  update_lim=5,  # how many parties need to send info before global update starts
                                   server_host_ip=args.server_host_ip,
                                   server_port=args.server_port,
                                   ssl_enabled=args.ssl_enabled,

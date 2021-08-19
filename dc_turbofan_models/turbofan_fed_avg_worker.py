@@ -32,7 +32,7 @@ def get_args():
 
     p.add_argument("--party-code",
                    help="The party data that should be assigned to this worker",
-                   type=str,
+                   type=int,
                    required=True)
 
     p.add_argument("--round-type",
@@ -126,8 +126,8 @@ def run():
 
     args = get_args()
 
-    train_file_name = 'FATE-Ubuntu/data/party_' + args.party_code + '_train' + args.bal_imbal + '.csv'
-    test_file_name = 'FATE-Ubuntu/data/party_' + args.party_code + '_test' + args.bal_imbal + '.csv'
+    train_file_name = 'FATE-Ubuntu/data/party_' + str(args.party_code) + '_train' + args.bal_imbal + '.csv'
+    test_file_name = 'FATE-Ubuntu/data/party_' + str(args.party_code) + '_test' + args.bal_imbal + '.csv'
 
     df_train = pd.read_csv(train_file_name)
     df_test = pd.read_csv(test_file_name)
@@ -176,7 +176,7 @@ def run():
         train_loader=train_data_loader,
         test_loader=test_data_loader,
         round_type=args.round_type,
-        party='worker_'+args.party_code,
+        party='worker_' + str(args.party_code),
         rounds_per_iter=args.iter_rounds,
         args=model_args
     )

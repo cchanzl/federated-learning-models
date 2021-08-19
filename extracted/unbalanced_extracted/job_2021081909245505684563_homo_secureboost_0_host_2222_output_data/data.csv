@@ -1,0 +1,2 @@
+id,label,predict_result,predict_score,predict_detail,type
+3900001,150.0,127.23813784955267,127.23813784955267,{'label': 127.23813784955267},predict
