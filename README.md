@@ -14,6 +14,10 @@ The model for federated Gradient Boosted Decision Tree (GBDT) can be found in `p
 
 `pipeline-upload.py` supports the modelling process by uploading the necessary data for each worker onto FATE.
 
+The number of workers can be adjusted by updating the variable `num_parties` in both of these files.
+
+Remember to update the config file `config_5.yaml` and `config_3.yaml` to reflect the correct number of guests and hosts, in line with the number of workers.
+
 ![alt text](https://github.com/cchanzl/federated-learning-models/blob/master/images/FATEpipeline.png)
 
 ## dc_federated
