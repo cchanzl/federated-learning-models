@@ -9,6 +9,14 @@ This repo is divided into four main segments:
 4. `script` - contains the federated learning pipeline for the FATE model
 5. `dc_turbofan_models` - contains the federated learning pipeline for the dc_federated model
 
+## FATE
+The model for federated Gradient Boosted Decision Tree (GBDT) can be found in `pipeline_homo_sbt_regression.py`, which runs the customised federated learning pipeline for both training and testing purposes.
+
+`pipeline-upload.py` supports the modelling process by uploading the necessary data for each worker onto FATE.
+
+## dc_federated
+
+
 ## References
 * FATE - https://github.com/FederatedAI/FATE
 * dc_federated - https://github.com/digicatapult/dc-federated
