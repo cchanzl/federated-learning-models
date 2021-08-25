@@ -14,6 +14,8 @@ The model for federated Gradient Boosted Decision Tree (GBDT) can be found in `p
 
 `pipeline-upload.py` supports the modelling process by uploading the necessary data for each worker onto FATE.
 
+![alt text](https://github.com/cchanzl/federated-learning-models/blob/master/images/FATEpipeline.png)
+
 ## dc_federated
 
 
