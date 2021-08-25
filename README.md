@@ -4,10 +4,10 @@ degradation simulation data set FD001, using federated learning models.
 
 This repo is divided into four main segments:
 1. `data` - contains the train and test data for all workers in the federated learning process
-2. `extracted` - contains the train and test RUL prediction output of all workers from the FATE model
-3. `dc_extracted` - contains the train and test RUL prediction output of all workers from the dc_federated model
-4. `script` - contains the federated learning pipeline for the FATE model
-5. `dc_turbofan_models` - contains the federated learning pipeline for the dc_federated model
+2. `script` - contains the federated learning pipeline for the FATE model
+3. `extracted` - contains the train and test RUL prediction output of all workers from the FATE model
+4. `dc_turbofan_models` - contains the federated learning pipeline for the dc_federated model
+5. `dc_extracted` - contains the train and test RUL prediction output of all workers from the dc_federated model
 
 ## FATE
 The model for federated Gradient Boosted Decision Tree (GBDT) can be found in `pipeline_homo_sbt_regression.py`, which runs the customised federated learning pipeline for both training and testing purposes.
