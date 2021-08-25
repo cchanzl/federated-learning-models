@@ -21,7 +21,21 @@ Remember to update the config file `config_5.yaml` and `config_3.yaml` to reflec
 ![alt text](https://github.com/cchanzl/federated-learning-models/blob/master/images/FATEpipeline.png)
 
 ## dc_federated
+The model for federated Neural Network (NN) using the federated averaging algorithm can be found in `turbofan_fed_model.py`.
 
+Both `turbofan_fed_avg_server.py` and `turbofan_fed_avg_worker.py` make calls to the model.
+
+An example call to the server is
+
+```bash
+python FATE-Ubuntu/dc_turbofan_models/turbofan_fed_avg_server.py --batch-size 24 --learn-rate 0.03 --iter-rounds 12 --layer-one 64 --layer-two 128 --layer-three 256 --drop-out 0 --acti-func sigmoid
+```
+
+An example call to each worker is 
+
+```bash
+python FATE-Ubuntu/dc_turbofan_models/turbofan_fed_avg_worker.py --server-host-ip 127.0.1.1 --server-port 8080 --batch-size 24 --learn-rate 0.03 --iter-rounds 12 --layer-one 64 --layer-two 128 --layer-three 256 --drop-out 0 --acti-func sigmoid --bal-imbal _balanced --party-code 5
+```
 
 ## References
 * FATE - https://github.com/FederatedAI/FATE
