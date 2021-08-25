@@ -11,4 +11,4 @@ This repo is divided into four main segments:
 
 ## References
 * FATE - https://github.com/FederatedAI/FATE
-* * dc_federated - https://github.com/digicatapult/dc-federated
+* dc_federated - https://github.com/digicatapult/dc-federated
